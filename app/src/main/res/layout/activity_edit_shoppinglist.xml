@@ -1,0 +1,67 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.eerojaaskelainen.ostosbudjetti.shoppinglist.EditShoppinglistActivity"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Muokkaa koria"
+        android:id="@+id/shoppinglistedit_header_txt"
+        android:clickable="true" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/section_vertical_margin">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="dd.mm.yyyy"
+            android:id="@+id/shoppinglistedit_date"
+            android:singleLine="false"
+            android:clickable="true"
+            android:onClick="muokkaaPvm"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="HH:MM"
+            android:id="@+id/shoppinglistedit_time"
+            android:layout_marginLeft="@dimen/section_horizontal_margin"
+            android:clickable="true"
+            android:onClick="muokkaaAika"/>
+
+    </LinearLayout>
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/shoppinglistedit_shops"
+        ></FrameLayout>
+    <!--<fragment
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/shoppinglistedit_shops"
+        android:name="com.eerojaaskelainen.ostosbudjetti.shoppinglist.ShopsFragment"
+        tools:layout="@layout/fragment_shops" />
+    -->
+
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:id="@+id/shoppinglistedit_list"
+        android:background="@drawable/erotinborderi"></FrameLayout>
+
+
+</LinearLayout>

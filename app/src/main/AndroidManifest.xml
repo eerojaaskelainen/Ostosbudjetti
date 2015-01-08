@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.eerojaaskelainen.ostosbudjetti" >
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".shoppinglist.EditShoppinglistActivity"
+            android:label="@string/title_activity_edit_shoppinglist"
+            android:parentActivityName=".MainActivity"
+            android:launchMode="singleTop">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.eerojaaskelainen.ostosbudjetti.MainActivity" />
+        </activity>
+        <activity
+            android:name=".AddItemActivity"
+            android:label="@string/title_activity_add_item"
+            android:parentActivityName=".shoppinglist.EditShoppinglistActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".shoppinglist.EditShoppinglistActivity" />
+        </activity>
+
+        <provider
+            android:name=".contentproviders.KaupatContentProvider"
+            android:authorities="com.eerojaaskelainen.ostosbudjetti.kaupat"
+            android:enabled="true"
+            android:exported="true" >
+        </provider>
+        <provider
+            android:name=".contentproviders.OstoksetContentProvider"
+            android:authorities="com.eerojaaskelainen.ostosbudjetti.ostokset"
+            android:enabled="true"
+            android:exported="true" >
+        </provider>
+    </application>
+
+</manifest>

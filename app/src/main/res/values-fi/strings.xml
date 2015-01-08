@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dialog_shoppinglist_name">Muokkaa listan nimeä</string>
+    <string name="main_select_previous_cart">Valitse edellinen lista</string>
+    <string name="main_select_previous_cart_title">Valitse edellinen kori</string>
+    <string name="main_create_new_basket_btn_text">Luo uusi kauppakäynti</string>
+    <string name="main_title_text">Mitä haluat tehdä?</string>
+</resources>
