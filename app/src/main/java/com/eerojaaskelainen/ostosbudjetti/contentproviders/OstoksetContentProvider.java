@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import com.eerojaaskelainen.ostosbudjetti.databaseHelpers.Ostoskanta;
+import com.eerojaaskelainen.ostosbudjetti.databaseHelpers.OstoskoriHelper;
 import com.eerojaaskelainen.ostosbudjetti.models.Kauppa;
 
 public class OstoksetContentProvider extends ContentProvider {
@@ -25,10 +26,12 @@ public class OstoksetContentProvider extends ContentProvider {
     private static final int OSTOSKORIT = 1;
     private static final int OSTOSKORI_ID = 10;
     private static final int OSTOSKORI_UUSI = 11;
+    private static final int OSTOSKORI_MUOKKAA = 12;
 
     private static final int OSTOSKORIN_RIVIT = 2;
     private static final int OSTOSKORIN_RIVI_ID = 20;
     private static final int OSTOSKORIN_RIVI_UUSI = 21;
+    private static final int OSTOSKORIN_RIVI_MUOKKAA = 22;
 
     // URIhelperi itsessään: Annetaan defaultti match, eli ei osumaa.
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -37,10 +40,12 @@ public class OstoksetContentProvider extends ContentProvider {
     static {
         sUriMatcher.addURI(AUTHORITY,"baskets",OSTOSKORIT);      // Eli napsahtaa kun kutsutaan com.eerojaaskelainen.ostosbudjetti.kaupat/stores.
         sUriMatcher.addURI(AUTHORITY,"baskets/new",OSTOSKORI_UUSI);
+        sUriMatcher.addURI(AUTHORITY,"baskets/update/#",OSTOSKORI_MUOKKAA);
         sUriMatcher.addURI(AUTHORITY,"baskets/#",OSTOSKORI_ID); // Risuaita merkitsee muuttujaa.
 
         sUriMatcher.addURI(AUTHORITY,"baskets/#/rows",OSTOSKORIN_RIVIT);
         sUriMatcher.addURI(AUTHORITY,"baskets/#/rows/new",OSTOSKORIN_RIVI_UUSI);
+        sUriMatcher.addURI(AUTHORITY,"baskets/#/rows/update/#",OSTOSKORIN_RIVI_MUOKKAA);
         sUriMatcher.addURI(AUTHORITY,"baskets/#/rows/#",OSTOSKORIN_RIVI_ID);
 
     }
@@ -55,7 +60,16 @@ public class OstoksetContentProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        switch (sUriMatcher.match(uri))
+        {
+            case OSTOSKORI_ID:
+                return ostoskanta.poistaOstoskori(uri.getLastPathSegment());
+            case OSTOSKORIN_RIVI_ID:
+                // TODO: Tee ostosrivin poisto
+                throw new UnsupportedOperationException("Rivin poistoa ei tehty vielä");
+            default:
+                throw new IllegalArgumentException("Incorrect URI: "+ uri);
+        }
     }
 
     @Override
@@ -90,10 +104,7 @@ public class OstoksetContentProvider extends ContentProvider {
 
         switch (sUriMatcher.match(uri)) {
             case OSTOSKORI_UUSI:
-                if (!values.containsKey("store_id"))
-                    throw new IllegalArgumentException("store_id was not found!");
-
-                luotuID = ostoskanta.luoOstoskori(values.getAsLong("store_id"));
+                luotuID = ostoskanta.luoOstoskori();
                 break;
             case OSTOSKORIN_RIVI_UUSI:
 
@@ -112,7 +123,7 @@ public class OstoksetContentProvider extends ContentProvider {
         Uri palauta = null;
         if (luotuID != -1) {
             // Palautetaan luodun rivin URI
-            palauta = ContentUris.withAppendedId(CONTENT_URI,luotuID);
+            palauta = Uri.withAppendedPath(CONTENT_URI,"baskets/"+ luotuID);    //palauta = ContentUris.withAppendedId(CONTENT_URI,luotuID); luo osoitteen ilman /baskets/ -polkua, eli ei kelpaa!
             // Informeeraa resolverille että nyt muuttui listat:
             getContext().getContentResolver().notifyChange(palauta,null);
         }
@@ -187,11 +198,27 @@ public class OstoksetContentProvider extends ContentProvider {
         return osumat;
     }
 
+    /**
+     * Tekee päivitykset kantaan.
+     * @param uri   Uri, jolla tultiin
+     * @param values    Arvot joita talletetaan
+     * @param selection Hakulauseke, jolla haetaan rivit joita halutaan muuttaa
+     * @param selectionArgs Hakulausekkeen ? merkkien täytteet
+     * @return  Palauttaa päivitettyjen rivien lukumäärän
+     */
     @Override
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
         // TODO: Implement this to handle requests to update one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        int kysely = sUriMatcher.match(uri);
+        switch (kysely) {
+            case OSTOSKORI_MUOKKAA:
+                return ostoskanta.muokkaaOstoskoria(uri.getLastPathSegment(),values);
+            case OSTOSKORIN_RIVI_MUOKKAA:
+                throw new UnsupportedOperationException("Rivimuokkausta ei ole tehty vielä");
+            default:
+                throw new IllegalArgumentException("Unknown URI: "+ uri);
+        }
     }
 
     @Override

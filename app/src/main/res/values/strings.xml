@@ -12,5 +12,13 @@
     <string name="main_select_previous_cart_title">Valitse edellinen kori</string>
     <string name="main_create_new_basket_btn_text">Luo uusi kauppakäynti</string>
     <string name="main_title_text">Mitä haluat tehdä?</string>
+    <string name="alert_basket_store_failed">Ostoskorin tallennus ei onnistunut! Kokeile uudelleen</string>
+    <string name="alert_basket_invalid">Ostoskori ei ole kelvollinen! Tarkista että olet valinnut ostoskorille kaupan!</string>
+    <string name="alert_things_not_ok">Huomio! Kaikki ei ole kunnossa!</string>
+    <string name="alert_confirmation_message">\n\nHaluatko varmasti poistua tallentamatta?</string>
+    <string name="alert_no_rows_in_basket">Ostoskorissa ei ole yhtään tuotetta!\n\nHaluatko silti sen tallettaa?</string>
+    <string name="alert_no_rows_no_button">En. Hävitä kori</string>
+    <string name="yes">Kyllä</string>
+    <string name="alert_date_longer_than_today">Aika ei voi olla myöhempi kuin mitä tämä hetki on!</string>
 
 </resources>

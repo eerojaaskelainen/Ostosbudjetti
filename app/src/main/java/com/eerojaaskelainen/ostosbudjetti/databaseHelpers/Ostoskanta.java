@@ -1,5 +1,6 @@
 package com.eerojaaskelainen.ostosbudjetti.databaseHelpers;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -165,8 +166,8 @@ public class Ostoskanta extends SQLiteOpenHelper {
 
     }
 
-    public long luoOstoskori(long kauppaID) {
-        return OstoskoriHelper.luoOstoskori(this.getWritableDatabase(),kauppaID, Calendar.getInstance().getTimeInMillis());
+    public long luoOstoskori() {
+        return OstoskoriHelper.luoOstoskori(this.getWritableDatabase(),null, Calendar.getInstance().getTimeInMillis());
     }
     public Ostoskori haeOstoskori(long ostoskoriID) {
         return OstoskoriHelper.haeOstoskori(this.getReadableDatabase(),ostoskoriID);
@@ -181,5 +182,13 @@ public class Ostoskanta extends SQLiteOpenHelper {
     }
     public Cursor haeOstosrivitCursor(String[] projection, String selection, String[] selectionArgs, String sortOrder, String koriID, String riviID) {
         return OstosriviHelper.haeOstosrivitCursor(this.getReadableDatabase(),projection,selection,selectionArgs,sortOrder,koriID,riviID);
+    }
+
+    public int muokkaaOstoskoria(String ostoskoriID, ContentValues arvot) {
+        return OstoskoriHelper.muokkaaOstoskoria(this.getWritableDatabase(),ostoskoriID,arvot);
+    }
+
+    public int poistaOstoskori(String ostoskoriID) {
+        return OstoskoriHelper.poistaOstoskori(this.getWritableDatabase(),ostoskoriID);
     }
 }

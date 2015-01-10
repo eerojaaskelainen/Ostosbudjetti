@@ -1,24 +1,29 @@
 package com.eerojaaskelainen.ostosbudjetti.shoppinglist;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.OperationApplicationException;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.eerojaaskelainen.ostosbudjetti.AddItemActivity;
 import com.eerojaaskelainen.ostosbudjetti.R;
-import com.eerojaaskelainen.ostosbudjetti.databaseHelpers.Ostoskanta;
+import com.eerojaaskelainen.ostosbudjetti.contentproviders.OstoksetContentProvider;
 import com.eerojaaskelainen.ostosbudjetti.models.Kauppa;
 import com.eerojaaskelainen.ostosbudjetti.models.Ostoskori;
 
@@ -31,7 +36,7 @@ import java.util.Date;
 public class EditShoppinglistActivity extends ActionBarActivity implements
         DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener,
         ShopsFragment.OnKauppaSelectedListener // Kauppalistan muutoskuuntelija
-        {
+{
 
     public static final String TAG = "EditShoppingListActivity";
     //Ostoskanta kanta;
@@ -43,27 +48,54 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
     protected TextView kloTV;
     //protected ListView ostokset;
 
+    // Tämä on poistumista varten
+    private boolean poistutaanActivitysta = false;
+
+    /**
+     * Kun activityä tapetaan, poimitaan sitä ennen ostoskori talteen tilakoneeseen:
+     * @param outState
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable("Ostoskori",ostoskori);
+
+        super.onSaveInstanceState(outState);
+    }
+
+    /**
+     * Tilakoneesta on löytynyt edeltävä tila. Otetaan käyttöön sen ostoskori.
+     * Alunperin ideana oli korjata ostoskorin hukkaan joutuminen uuden ostosrivin lisäyksen aikana,
+     * mutta tämän hanskaa nyt Manifestissa oleva argumentti android:launchMode="singleTop".
+     * @param savedInstanceState
+     */
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState.containsKey("Ostoskori"))
+            ostoskori = savedInstanceState.getParcelable("Ostoskori");
+
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_edit_shoppinglist);
 
-        // Haetaan näkymää kutsunut: Parametrinä on pakko olla ostoskori!
+        // Poimitaan / Tekaistaan ostoskori:
+        //--------------------------------------------------------------------------
+        // Tutkitaan tilakone, tullaanko esim. uuden rivin lisäyksestä:
         if (savedInstanceState == null || ostoskori == null) {
-            Intent kutsuja = getIntent();
-            if (!kutsuja.hasExtra("Ostoskori")) {
-                // Ei ollut parametriä.
-                throw new IllegalArgumentException("No basket!");
-            }
-
-            ostoskori = kutsuja.getParcelableExtra("Ostoskori");
-            if (ostoskori == null)
-                ostoskori = new Ostoskori();
+            //
+            // Poimitaan mahdollinen edeltävä ostoskori, tai sitten luodaan uusi.
+            poimiOstoskoriKyselijaltaTaiDefault();
         }
         else {
             ostoskori = savedInstanceState.getParcelable("Ostoskori");
         }
+
+        // Ostoskori OK, jatketaan:
+        //--------------------------------------------------------------------------
 
 
         // Noudetaan näytön elementit:
@@ -90,6 +122,46 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
         }
     }
 
+    /**
+     * Poimitaan ostoskori mahdollisesti kutsujan argumentista.
+     * Jos koria ei ole, luodaan uusi ostoskori kantaan ja aletaan käyttää sitä.
+     */
+    private void poimiOstoskoriKyselijaltaTaiDefault() {
+
+            Intent kutsuja = getIntent();
+            if (!kutsuja.hasExtra("Ostoskori")) {
+                // Ei ollut parametriä. Uutta ostoskoria luodaan: Eli luo kantaan tyhjä kori:
+                luoOstoskori();
+                return;
+            }
+            // Ainakin sen niminen parametri löytyi. Yritetään
+            ostoskori = kutsuja.getParcelableExtra("Ostoskori");
+            if (ostoskori == null) { // Korin luonti ei onnistunut oikein:
+                throw new IllegalArgumentException("Basket could not be converted!!!");
+            }
+    }
+
+    /**
+     * Luo kantaan uuden ostoskorin, jonka sitten palauttaa tähän käsiteltäväksi. Huomaa, että tässä vaiheessa
+     * EI talleteta kaupan tietoa! (Koska sitä ei tiedetä.)
+     * @return  Luotu ostoskori
+     */
+    private void luoOstoskori() {
+        Uri luodunKorinID = this.getContentResolver().insert(
+                Uri.withAppendedPath(OstoksetContentProvider.CONTENT_URI,"baskets/new"),null);
+
+        if (luodunKorinID == null)
+            throw new NullPointerException("Basket creation were not successfull!");
+
+        Cursor ostoskoriC = this.getContentResolver().query(luodunKorinID,null,null,null,null);
+        if (ostoskoriC == null || ostoskoriC.getCount()==0)
+            throw new NullPointerException("Created basket could not be found!");
+
+        ostoskori = Ostoskori.convertCursorToOstoskori(ostoskoriC);
+        ostoskoriC.close();
+
+    }
+
 
      /**
      * Käynnistetään tuotelistaus-fragmentti, jossa tuotteet listattuna.
@@ -108,6 +180,9 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
 
     }
 
+    /**
+     * Käynnistetään kaupan valinta-fragmentti, jossa kaupat listattuna:
+     */
     private void asetaKaupatFragmentti() {
         ShopsFragment kauppaFragmentti = new ShopsFragment();
         // Jos kauppa on jo valittu (eli muokataan vanhaa), viedään sen ID listalle:
@@ -120,16 +195,7 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
         getSupportFragmentManager().beginTransaction().add(R.id.shoppinglistedit_shops,kauppaFragmentti).commit();
     }
 
-    private void asetaAika() {
-        if (ostoskori.getPvm() == null)
-            ostoskori.setPvm(new Date(System.currentTimeMillis()));
 
-        DateFormat pvmFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-
-        DateFormat kloFormat = new SimpleDateFormat("HH:mm");
-        pvmTV.setText(pvmFormat.format(ostoskori.getPvm()));
-        kloTV.setText(kloFormat.format(ostoskori.getPvm()));
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -143,27 +209,34 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+
+        switch (item.getItemId()) {
+            case android.R.id.home: // Jos painettiin paluunuolta, käsitellään poistuminen kunnolla:
+                if (haeOstoskorinRivit()==0) // jos korissa ei ole mitään, varmistetaan että käyttäjä haluaa tallentaa tyhjän korin.
+                    poistutaanTyhjana();
+                else
+                    poistutaan();   // Korissa on tuotteita, poistutaan normirutiinilla
+                return true;
+            case R.id.action_settings:
+                return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     /**
-     * Avaa uuden tuotteen lisäyksen
+     * Avaa uuden tuotteen lisäyksen mahdollistavan activityn:
      *
      * @param item
      */
     public void lisaaUusiTuote_Click(MenuItem item) {
+        if (ostoskori.getId()<1) {
+            // Jos ostoskoria ei ole. Tätä ei pitäisi tapahtua, mutta varmuuden vuoksi!
+            Toast.makeText(this,"Ostoskoria ei ole!",Toast.LENGTH_LONG);
+            return;
+        }
 
-        //TODO: Miten uuden ostoskorin tallennus kantaan, missä vaiheessa???
-        /*if (ostoskori.getId()==-1)
-            Toast.makeText(this,"Ostoskoria ei ole")
-        */// TODO: Lisää käsittelijä, joka katsoo asetuksista, mikä on käyttäjän oletusvalinta uuden tuotteen lisäämiselle...
+       // TODO: Lisää käsittelijä, joka katsoo asetuksista, mikä on käyttäjän oletusvalinta uuden tuotteen lisäämiselle...
         lisaaTuote_Perus();
 
         //lisaaTuote_Viivakoodi();
@@ -185,22 +258,139 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
 
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-              outState.putParcelable("Ostoskori",ostoskori);
 
-              super.onSaveInstanceState(outState);
+    /**
+     * Kun paluunuolta painetaan, katsotaan kannan systeemit valmiiksi, ja vasta sitten mennään:
+     */
+    @Override
+    public void onBackPressed() {
+        if (haeOstoskorinRivit()==0) // jos korissa ei ole mitään, varmistetaan että käyttäjä haluaa tallentaa tyhjän korin.
+            poistutaanTyhjana();
+        else
+            poistutaan();   // Korissa on tuotteita, poistutaan normirutiinilla
     }
 
+    /**
+     * Kun fyysistä paluunuolta painetaan, katsotaan kannan systeemit valmiiksi, ja vasta sitten mennään:
+     */
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-                if (savedInstanceState.containsKey("Ostoskori"))
-                    ostoskori = savedInstanceState.getParcelable("Ostoskori");
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
 
-                super.onRestoreInstanceState(savedInstanceState);
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            if (haeOstoskorinRivit()==0)    // jos korissa ei ole mitään, varmistetaan että käyttäjä haluaa tallentaa tyhjän korin.
+                poistutaanTyhjana();
+            else
+                poistutaan();   // Korissa on tuotteita, poistutaan normirutiinilla
+        }
+        return super.onKeyDown(keyCode, event);
     }
-    @Override
 
+    /**
+     * Jos käyttäjä aikoo poistua niin, ettei korissa ole yhtään tuotetta, näytetään kysely.
+     * Jos käyttäjä vastaa kyselyyn myöntävästi, jatketaan normaalit poistumisrutiinit.
+     * Muuten keskeytetään ajo.
+     */
+    private void poistutaanTyhjana() {
+
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.alert_things_not_ok))
+                .setMessage(getString(R.string.alert_no_rows_in_basket))
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    // OK käskyttää normaalia poistumisrutiinia, eli talletetaan tyhjä kori:
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        poistutaan();
+                    }
+                })
+                .setNeutralButton(R.string.alert_no_rows_no_button, new DialogInterface.OnClickListener() {
+                    // Käyttäjä ei halua koria tallettaa. Tuhotaan kori kannasta ja suljetaan:
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        getContentResolver().delete(
+                                Uri.withAppendedPath(OstoksetContentProvider.CONTENT_URI,"baskets/"+ ostoskori.getId()),
+                                null,null);
+                        finish();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)   // Cancel perutaan toiminto
+                .show();
+    }
+    /**
+     * Ennen Activitystä poistumista tarkistetaan ostoskori, talletetaan se kantaan ja vasta sitten poistutaan.
+     * Jos joku menee pieleen, näytetään käyttäjälle varmistus haluaako hän keskeyttää toiminnon.
+     */
+    private void poistutaan() {
+        String varoitus = null;
+
+        if (!Ostoskori.ostoskoriOnKelvollinen(ostoskori)) {      // Paluu sallitaan vain jos kori on kelvollinen tai käyttäjä haluaa peruuttaa homman:
+            varoitus = getString(R.string.alert_basket_invalid);
+        }
+
+        else {
+            // ostoskori on OK. Kokeillaan tallettaa muutokset kantaan:
+            if (!TallennaOstoskoriKantaan())
+                varoitus = getString(R.string.alert_basket_store_failed);
+        }
+
+        if (varoitus != null) {
+            // Halutaan varmistaa että poistutaan, vaikka tavara ei ole ookoo:
+            AlertDialog.Builder varmistus = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.alert_things_not_ok))
+                .setMessage(varoitus + getString(R.string.alert_confirmation_message))
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    // OK toimittaa activityn loppuun, eli vaikka homma failaa, jatketaan vaan:
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton(android.R.string.no,null);   // Cancel ei tee mitään.
+            varmistus.show();
+        }
+        else {
+            // Kaikki kunnossa. Tuhotaan activity
+            finish();
+        }
+    }
+
+    private void ilmoitaPoistumisvirhe(String varoitus) {
+
+    }
+    private int haeOstoskorinRivit() {
+        Cursor ostokset = this.getContentResolver().query(
+                Uri.withAppendedPath(OstoksetContentProvider.CONTENT_URI,"baskets/"+ ostoskori.getId() + "/rows"),
+                null,null,null,null
+        );
+        int maara = ostokset.getCount();
+        ostokset.close();
+        return maara;
+    }
+
+    private boolean TallennaOstoskoriKantaan() {
+
+        ContentValues cV = new ContentValues();
+            cV.put(Ostoskori.KAUPPA,ostoskori.getKauppa_id());
+            cV.put(Ostoskori.PVM,ostoskori.getRaakaPvm());
+
+        // Paukastaan päivittäen ostoskori kantaan:
+        int paivitettyjenOstoskorienLkm = this.getContentResolver().update(
+                Uri.withAppendedPath(OstoksetContentProvider.CONTENT_URI,"baskets/update/"+ostoskori.getId()),
+                cV,
+                null,null);
+
+        if (paivitettyjenOstoskorienLkm <1)
+            return false;
+        if (paivitettyjenOstoskorienLkm >1)
+            throw new IllegalStateException("Multiple rows updated when updating the shopping basket!");
+
+        // Tallenna korin rivit:
+        int paivitettyjenRivienLkm = 0;     //TODO: Tee ostoskorin rivien päivitys kantaan!
+
+        return true;
+    }
+
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             // Rivi lisätty. Päivitä listaus
@@ -237,8 +427,13 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
         Calendar c = Calendar.getInstance();
         c.setTime(ostoskori.getPvm());
         c.set(year, monthOfYear, dayOfMonth);
-        ostoskori.setPvm(c.getTime());
 
+        if (c.after(Calendar.getInstance())) {
+            // Ei myöhempää aikaa, mitä nyt on!
+            Toast.makeText(this,R.string.alert_date_longer_than_today,Toast.LENGTH_LONG).show();
+            return;
+        }
+        ostoskori.setPvm(c.getTime());
         asetaAika();
     }
 
@@ -265,8 +460,28 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
         c.set(Calendar.HOUR_OF_DAY, hourOfDay);
         c.set(Calendar.MINUTE, minute);
 
+        if (c.after(Calendar.getInstance())) {
+            // Ei myöhempää aikaa, mitä nyt on!
+            Toast.makeText(this,R.string.alert_date_longer_than_today,Toast.LENGTH_LONG).show();
+            return;
+        }
         ostoskori.setPvm(c.getTime());
         asetaAika();
+    }
+
+    /**
+     * Kun käyttäjä on valinnut kellonajan (TimePickerFragmentista).
+     * Asetetaan ostoskorin kellonaika vastaamaan valintaa.
+     */
+    private void asetaAika() {
+        if (ostoskori.getPvm() == null)
+            ostoskori.setPvm(new Date(System.currentTimeMillis()));
+
+        DateFormat pvmFormat = DateFormat.getDateInstance(DateFormat.SHORT);
+
+        DateFormat kloFormat = new SimpleDateFormat("HH:mm");
+        pvmTV.setText(pvmFormat.format(ostoskori.getPvm()));
+        kloTV.setText(kloFormat.format(ostoskori.getPvm()));
     }
 
     /**
@@ -275,7 +490,7 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
      */
     @Override
     public void onKauppaSelected(long kauppaID) {
-        //TODO: Tee kaupan vaihdon metodit kuntoon!
-        Toast.makeText(this,"Kauppa: "+ kauppaID, Toast.LENGTH_LONG).show();
+        // Talletetaan kaupan ID ostoskoriin:
+        ostoskori.setKauppa_id(kauppaID);
     }
 }

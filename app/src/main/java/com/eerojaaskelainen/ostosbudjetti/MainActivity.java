@@ -178,7 +178,15 @@ public class MainActivity extends ActionBarActivity implements
         Intent i = new Intent(this,EditShoppinglistActivity.class);
         if (ostoskori != null)
             i.putExtra("Ostoskori",ostoskori);
-        startActivity(i);
+        startActivityForResult(i, 100);      // ForResult siksi, että palatessa päivitetään listaus vanhoista.
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Päivitetään lista vanhoista ostoskoreista:
+        getSupportLoaderManager().restartLoader(1,null,this);
     }
 
     @Override

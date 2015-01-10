@@ -104,12 +104,12 @@ public class ShopsFragment extends Fragment implements LoaderManager.LoaderCallb
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                Cursor valittuKauppa = (Cursor) parent.getItemAtPosition(position);                         // Napataan valitun kaupan kursori
-
                 // Ensimmäisellä kerralla (eli kun fragmentti luodaan ja kone valitsee) ei liipaista eventtiä.
+
                 if (!ekaKerta){//if (valittuKauppaID != getEdellinenKauppaID()) {
-                    mListener.onKauppaSelected(valittuKauppa.getLong(valittuKauppa.getColumnIndex(Kauppa.FULL_ID)));
+                    Cursor valittuKauppa = (Cursor) parent.getItemAtPosition(position);                         // Napataan valitun kaupan kursori
+
+                    mListener.onKauppaSelected(valittuKauppa.getLong(valittuKauppa.getColumnIndex(Kauppa._ID)));
                     valittuKauppa.close();
                 }
                 else ekaKerta = false;  // Sen jälkeen liipaistaan joka kerran (eli aina kun käyttäjä itse valitsee.
@@ -133,15 +133,13 @@ public class ShopsFragment extends Fragment implements LoaderManager.LoaderCallb
         // Koska kyseessä on kursori, pitää rivit loopata läpi, ja katsoa osuiko...
 
         for (int i = 0; i < kaupatAdapter.getCount(); i++) {
-            Cursor value = (Cursor) kaupatAdapter.getItem(i);
+            Cursor value = (Cursor) kaupatAdapter.getItem(i);       // Tätä kursoria ei voi sulkea, koska se sulkee silloin pääkursorinkin. Warning tulee, mutta ei voi mitään.
             long id = value.getLong(value.getColumnIndex(Kauppa._ID));  //Napataan tämän rivin kaupan ID.
-
 
             if (id == oletusKauppaID) { // Kauppa osui!
                 kaupat.setSelection(i); // Ja säädetään osunut aktiiviseksi.
                 return;
             }
-            value.close();
         }
 
     }

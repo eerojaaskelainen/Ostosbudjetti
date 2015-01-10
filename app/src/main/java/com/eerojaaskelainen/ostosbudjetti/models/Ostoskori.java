@@ -37,8 +37,6 @@ public class Ostoskori implements Parcelable, BaseColumns {
     private Long pvm;
 
 
-
-
     /**
      * Palauttaa ostosajan Date-tyyppisenä oliona
      * @return
@@ -159,6 +157,22 @@ public class Ostoskori implements Parcelable, BaseColumns {
                 c.getLong(c.getColumnIndex(Ostoskori.PVM))
         );
         return ok;
+    }
+
+    /**
+     * Tarkistaa, onko ostoskori kelvollinen talletettavaksi kantaan
+     * @return  True jos kori kunnossa
+     */
+    public static boolean ostoskoriOnKelvollinen(Ostoskori ostoskori) {
+        if (ostoskori == null)
+            return false;
+        if (ostoskori.getId() < 1)
+            return false;
+        if (ostoskori.getRaakaPvm() <1)
+            return false;
+        if (ostoskori.getKauppa_id() <1)
+            return false;
+        return true;
     }
 }
 
