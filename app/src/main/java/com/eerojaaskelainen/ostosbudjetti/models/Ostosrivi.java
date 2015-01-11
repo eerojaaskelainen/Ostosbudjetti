@@ -14,6 +14,8 @@ public final class Ostosrivi implements BaseColumns{
     public static final String TUOTE = "tuote_id";
     public static final String A_HINTA = "a_hinta";
     public static final String LKM = "lkm";
+    public static final String RIVISUMMA = "summa";
+    public static final String RIVISUMMA_GENERATOR = A_HINTA + "*" + LKM + " AS summa";
 
     // Sarakkeiden nimet taulunimen kera Joineille:
     public static final String FULL_ID = TABLE_NAME + "." + _ID;
@@ -21,6 +23,7 @@ public final class Ostosrivi implements BaseColumns{
     public static final String FULL_TUOTE = TABLE_NAME + "." + TUOTE;
     public static final String FULL_A_HINTA = TABLE_NAME + "." + A_HINTA;
     public static final String FULL_LKM = TABLE_NAME + "." + LKM;
+    public static final String FULL_RIVISUMMA_GENERATOR = FULL_A_HINTA + "+" + FULL_LKM + " AS rowsum";
 
 
     /**

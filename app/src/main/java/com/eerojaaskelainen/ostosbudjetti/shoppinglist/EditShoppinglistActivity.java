@@ -7,7 +7,6 @@ import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,6 +38,9 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
 {
 
     public static final String TAG = "EditShoppingListActivity";
+    public static final int OSTOSLISTA_ACTIVITYREULT = 20;
+    // Yksilöity luku aktivityn tuloskäsittelyyn:
+    public static final int KAUPPA_ACTIVITYREULT = 30;
     //Ostoskanta kanta;
 
 
@@ -186,7 +188,7 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
     private void asetaKaupatFragmentti() {
         ShopsFragment kauppaFragmentti = new ShopsFragment();
         // Jos kauppa on jo valittu (eli muokataan vanhaa), viedään sen ID listalle:
-        if (ostoskori.getKauppa_id() >=0) {
+        if (ostoskori.getKauppa_id() >0) {
             Bundle argut = new Bundle();
             argut.putLong(Kauppa._ID,ostoskori.getKauppa_id());
             kauppaFragmentti.setArguments(argut);
@@ -204,6 +206,11 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
         return true;
     }
 
+    /**
+     * Eventti liipaistaan kun käyttäjä tekee valinnan menubarissa
+     * @param item  Valittu elementti valikossa
+     * @return  Boolean, onko eventti käsitelty
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -353,9 +360,10 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
         }
     }
 
-    private void ilmoitaPoistumisvirhe(String varoitus) {
-
-    }
+    /**
+     * Haetaan kannasta ostoskorin tuotteiden lukumäärä
+     * @return  Ostosrivien lukumäärän
+     */
     private int haeOstoskorinRivit() {
         Cursor ostokset = this.getContentResolver().query(
                 Uri.withAppendedPath(OstoksetContentProvider.CONTENT_URI,"baskets/"+ ostoskori.getId() + "/rows"),
@@ -393,8 +401,17 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            // Rivi lisätty. Päivitä listaus
-            //TODO: Päivitä listaus.
+            switch (requestCode) {
+                case KAUPPA_ACTIVITYREULT:
+                    // Kun uusi kauppa on luotu:
+                    // TODO: Hanskaa kaupan valinnan käsittelyt
+
+                break;
+                //case OSTOSLISTA_ACTIVITYREULT:
+                // TODO: Hanskaa ostosrivin lisäyksen käsittelyt
+                // Rivi lisätty. Päivitä listaus
+                //break;
+            }
         }
     }
 

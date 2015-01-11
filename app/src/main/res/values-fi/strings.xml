@@ -13,4 +13,8 @@
     <string name="alert_no_rows_no_button">En. Hävitä kori</string>
     <string name="yes">Kyllä</string>
     <string name="alert_date_longer_than_today">Aika ei voi olla myöhempi kuin mitä tämä hetki on!</string>
+    <string name="shops_dialog_select_shop">Valitse kauppa:</string>
+    <string name="shops_fragment_dropdown_initial_label">Kaupan nimi</string>
+    <string name="shops_fragment_dropdown_title">Kauppa:</string>
+    <string name="shops_dialog_add_new_shop_button_label">Lisää uusi kauppa</string>
 </resources>

@@ -16,13 +16,14 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import com.eerojaaskelainen.ostosbudjetti.R;
+import com.eerojaaskelainen.ostosbudjetti.binders.OstoskoriTuotelistaBinder;
 import com.eerojaaskelainen.ostosbudjetti.contentproviders.OstoksetContentProvider;
 import com.eerojaaskelainen.ostosbudjetti.models.Ostoskori;
 import com.eerojaaskelainen.ostosbudjetti.models.Ostosrivi;
 import com.eerojaaskelainen.ostosbudjetti.models.Tuote;
 
 /**
- * A simple {@link Fragment} subclass.
+ * TuotelistaFragment näyttää ostoskorin sisältämät tuotteet.
  */
 public class ProductsListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -34,8 +35,14 @@ public class ProductsListFragment extends Fragment implements LoaderManager.Load
     // Adapteri tuotelistalle:
     private SimpleCursorAdapter tuotelistaAdapter;
     // Ja kentät adapterille:
-    private final String[] tuotelistaAdapterSarakkeet = {Tuote.NIMI, Ostosrivi._ID};
-    private final int[] tuotelistaAdapterKentat = {android.R.id.text1,android.R.id.text2};
+    private final String[] tuotelistaAdapterSarakkeet = {Tuote.NIMI,
+            Ostosrivi.A_HINTA,
+            Ostosrivi.LKM,
+            "summa"};
+    private final int[] tuotelistaAdapterKentat = {R.id.cart_row_product_name,
+            R.id.cart_row_product_unitprice,
+            R.id.cart_row_product_amount,
+            R.id.cart_row_product_total};
 
     public ProductsListFragment() {
         // Required empty public constructor
@@ -76,16 +83,13 @@ public class ProductsListFragment extends Fragment implements LoaderManager.Load
         // Tehdään listalle sisällöntarjoaja:
         luoTuotelistaAdapterit();
         // Tehdään listalle käsittelijät:
-        tuotelista.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        tuotelista.setLongClickable(true);
+        tuotelista.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // Kun tuoteriviä napsautetaan:
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 //TODO: Tee tuoterivin napsautus
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
+               
+                return true;
             }
         });
     }
@@ -94,13 +98,13 @@ public class ProductsListFragment extends Fragment implements LoaderManager.Load
     private void luoTuotelistaAdapterit() {
         tuotelistaAdapter = new SimpleCursorAdapter(
                 getActivity(),
-                android.R.layout.simple_list_item_2,
+                R.layout.shopping_cart_row,     // Oma tyyli tuoteriville
                 null,
                 tuotelistaAdapterSarakkeet,
                 tuotelistaAdapterKentat,
                 0
                 );
-
+        tuotelistaAdapter.setViewBinder(new OstoskoriTuotelistaBinder());   // Binderi hanskaamaan valuuttamuunnokset
         tuotelista.setAdapter(tuotelistaAdapter);
         getLoaderManager().initLoader(1,null,this);
 
@@ -138,13 +142,6 @@ public class ProductsListFragment extends Fragment implements LoaderManager.Load
         if (tuotelistaAdapter != null && cursor != null) {
             // Adapteri ei ole käytössä (joko alkutila tai kutsuttu ao. onLoaderReset() -metodia), dataa on. Joten paukase adapterille dataa!
             tuotelistaAdapter.swapCursor(cursor); // Annetaan kursori adapterin syötäväksi.
-
-            // Ja kassotaan onko tullut vanhaa kauppanumeroa:
-            // TODO: katso vanha kauppanumero!
-            /*if (getEdellinenKauppaID() >0) {
-                // Olihan sielä. Naksautetaan spinneriin se valituksi:
-                asetaOletusKauppa(getEdellinenKauppaID());
-            }*/
         }
     }
 

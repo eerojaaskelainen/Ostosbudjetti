@@ -10,12 +10,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Kauppa: "
+            android:text="@string/shops_fragment_dropdown_title"
             android:id="@+id/shopsfragment_store_txt" />
 
-        <Spinner
-            android:layout_width="wrap_content"
+        <Button
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/shopsfragment_store_list"
-            android:spinnerMode="dropdown" />
+            android:background="@android:drawable/btn_dropdown"
+            android:text="@string/shops_fragment_dropdown_initial_label"
+            android:gravity="center_vertical|left" />
+
 </LinearLayout>

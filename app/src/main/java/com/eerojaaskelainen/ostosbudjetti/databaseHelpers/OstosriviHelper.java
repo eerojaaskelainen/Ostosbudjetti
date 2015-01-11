@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 
-import com.eerojaaskelainen.ostosbudjetti.models.Ostoskori;
 import com.eerojaaskelainen.ostosbudjetti.models.Ostosrivi;
 import com.eerojaaskelainen.ostosbudjetti.models.Tuote;
 
@@ -31,7 +30,7 @@ public class OstosriviHelper {
 
         return kysely.query(
                 readableDatabase,
-                projection,
+                lisaaRivisummaProjectioon(projection),
                 selection,
                 selectionArgs,
                 null,
@@ -39,6 +38,38 @@ public class OstosriviHelper {
                 sortOrder,
                 limit
         );
+    }
+
+    /**
+     * Otetaan projectioon mukaan rivisumman muodostus
+     * @param projection    Content Providerin lähettämä projektio (jos on)
+     * @return  Palauttaa projection missä mukana rivisumma
+     */
+    private static String[] lisaaRivisummaProjectioon(String[] projection) {
+        String[] vieProjection;
+
+        if (projection == null) {
+            // Tyhjä projection, eli kaikki kentät halutaan:
+            vieProjection = new String[] {
+                    Ostosrivi.OSTOSKORI,
+                    Ostosrivi._ID,
+                    Tuote.EAN,
+                    Tuote.NIMI,
+                    Ostosrivi.A_HINTA,
+                    Ostosrivi.LKM,
+                    Ostosrivi.RIVISUMMA_GENERATOR
+            };
+        }
+        else {
+            // Projektiossa oli mukana kenttiä:
+            vieProjection = new String[projection.length+1];
+            for (int i =0; i < projection.length; i++)
+            {
+                vieProjection[i] = projection[i];
+            }
+            vieProjection[projection.length] = Ostosrivi.RIVISUMMA_GENERATOR;
+        }
+        return vieProjection;
     }
 
     public static long luoOstosrivi(SQLiteDatabase writableDatabase, long ostoskori_id, long tuote_id, double ahinta, int lkm) {

@@ -19,8 +19,8 @@
         <activity
             android:name=".shoppinglist.EditShoppinglistActivity"
             android:label="@string/title_activity_edit_shoppinglist"
-            android:parentActivityName=".MainActivity"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.eerojaaskelainen.ostosbudjetti.MainActivity" />
@@ -46,6 +46,15 @@
             android:enabled="true"
             android:exported="true" >
         </provider>
+
+        <activity
+            android:name=".shops.ShopsActivity"
+            android:label="@string/title_activity_shops"
+            android:parentActivityName=".shoppinglist.EditShoppinglistActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.eerojaaskelainen.ostosbudjetti.shoppinglist.EditShoppinglistActivity" />
+        </activity>
     </application>
 
 </manifest>

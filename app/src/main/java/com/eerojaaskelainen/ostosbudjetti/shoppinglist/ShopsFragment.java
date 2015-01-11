@@ -1,6 +1,9 @@
 package com.eerojaaskelainen.ostosbudjetti.shoppinglist;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,13 +14,13 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.SimpleCursorAdapter;
-import android.widget.Spinner;
 
 import com.eerojaaskelainen.ostosbudjetti.R;
 import com.eerojaaskelainen.ostosbudjetti.contentproviders.KaupatContentProvider;
 import com.eerojaaskelainen.ostosbudjetti.models.Kauppa;
+import com.eerojaaskelainen.ostosbudjetti.shops.ShopsActivity;
 
 
 /**
@@ -28,11 +31,15 @@ import com.eerojaaskelainen.ostosbudjetti.models.Kauppa;
  */
 public class ShopsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
+
+
     // Kaupat sisältävää listaa varten pari muuttujaa:
-    protected Spinner kaupat;
+    protected Button kaupat;
 
     // Aiemmin valitun kaupan ID - jos sellaista on.
     protected Long getEdellinenKauppaID() {
+        if (getArguments()== null)
+            return -1L;
         if (getArguments().containsKey(Kauppa._ID)) {
             // Olihan sielä. Ja napataan se adapteriin:
             return getArguments().getLong(Kauppa._ID, -1);
@@ -80,46 +87,47 @@ public class ShopsFragment extends Fragment implements LoaderManager.LoaderCallb
 
         // Tehdään adapteri kauppalistalle. Loader hoitaa Cursorin, eli nyt se on null:
         kaupatAdapter = new SimpleCursorAdapter(getActivity(),
-                            android.R.layout.simple_spinner_item,
+                            android.R.layout.simple_spinner_dropdown_item,
                             null,
                             sarakkeetAdapterille,
                             kentatAdapterille,
                             0); // Ei anneta arguja sen kummemmin.
         // Lisätään vielä näkymä kun lista on auki:
-        kaupatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        // Napataan spinneri talteen: Fragmentissa view tehdään tässä ylempänä.
-        kaupat = (Spinner)localView.findViewById(R.id.shopsfragment_store_list);
-        // Ja naitetaan spinnerille tuo adapteri:
-        kaupat.setAdapter(kaupatAdapter);
+        // Napataan nappi talteen: Fragmentissa view tehdään tässä ylempänä.
+        kaupat = (Button)localView.findViewById(R.id.shopsfragment_store_list);
+
+        // Tehdään napille kuuntelija, jossa näytetään custom-dialogi:
+        kaupat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(getActivity())
+
+                        .setTitle(R.string.shops_dialog_select_shop)
+                        .setAdapter(kaupatAdapter, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Cursor valittu = (Cursor)kaupatAdapter.getItem(which);
+                                // Liipaistaan ostoskorinäytölle (EditShoppinglistActivity) eventti jossa viedään valittu kaupan ID:
+                                kaupat.setText(valittu.getString(valittu.getColumnIndex(Kauppa.NIMI)));
+                                mListener.onKauppaSelected(valittu.getLong(valittu.getColumnIndex(Kauppa._ID)));
+
+                            }
+                        })
+                        .setPositiveButton(R.string.shops_dialog_add_new_shop_button_label,new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // "Lisää uusi kauppa -nappulaa painettaessa avataan Shops activity, jossa kauppa voidaan luoda.
+                                Intent kaupatI = new Intent(getActivity(), ShopsActivity.class);
+                                startActivityForResult(kaupatI, EditShoppinglistActivity.KAUPPA_ACTIVITYREULT);
+                            }
+                        })
+                        .create().show();
+            }
+        });
 
         // Ja käynnistetään loader, että saadaan sitä sisältöä tuohon spinneriin/adapteriin/kursoreihin:
         getLoaderManager().initLoader(1,null,this);
-
-
-
-        // Ja vähän handleria:
-        // Kun käyttäjä valitsee jonkun kaupan listasta:
-        kaupat.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // Ensimmäisellä kerralla (eli kun fragmentti luodaan ja kone valitsee) ei liipaista eventtiä.
-
-                if (!ekaKerta){//if (valittuKauppaID != getEdellinenKauppaID()) {
-                    Cursor valittuKauppa = (Cursor) parent.getItemAtPosition(position);                         // Napataan valitun kaupan kursori
-
-                    mListener.onKauppaSelected(valittuKauppa.getLong(valittuKauppa.getColumnIndex(Kauppa._ID)));
-                    valittuKauppa.close();
-                }
-                else ekaKerta = false;  // Sen jälkeen liipaistaan joka kerran (eli aina kun käyttäjä itse valitsee.
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Ei tarvitse reagoida jos käyttäjä tökkää muualle.
-            }
-        });
 
         return localView;
     }
@@ -137,7 +145,7 @@ public class ShopsFragment extends Fragment implements LoaderManager.LoaderCallb
             long id = value.getLong(value.getColumnIndex(Kauppa._ID));  //Napataan tämän rivin kaupan ID.
 
             if (id == oletusKauppaID) { // Kauppa osui!
-                kaupat.setSelection(i); // Ja säädetään osunut aktiiviseksi.
+                kaupat.setText(value.getString(value.getColumnIndex(Kauppa.NIMI))); // Napataan kaupan nimi buttonille tekstiksi
                 return;
             }
         }
@@ -169,7 +177,6 @@ public class ShopsFragment extends Fragment implements LoaderManager.LoaderCallb
      * Tämä interface pitää toteuttaa siinä Activityssä, joka fragmentin luo.
      */
     public interface OnKauppaSelectedListener {
-        // TODO: Update argument type and name
         public void onKauppaSelected(long kauppaID);
     }
 

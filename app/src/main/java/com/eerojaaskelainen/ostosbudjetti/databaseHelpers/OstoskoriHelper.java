@@ -98,7 +98,7 @@ protected static final boolean onkoOstoskoria(SQLiteDatabase db, long ostoskori_
 
     public static int muokkaaOstoskoria(SQLiteDatabase writableDatabase, String ostoskoriID, ContentValues arvot) {
         if (ostoskoriID == null)
-            throw new IllegalArgumentException("Shopping basket id must be!");
+            throw new IllegalArgumentException("Shopping basket id must be set!");
 
         try {
             Long.parseLong(ostoskoriID);
