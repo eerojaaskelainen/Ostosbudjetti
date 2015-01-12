@@ -17,4 +17,8 @@
     <string name="shops_fragment_dropdown_initial_label">Kaupan nimi</string>
     <string name="shops_fragment_dropdown_title">Kauppa:</string>
     <string name="shops_dialog_add_new_shop_button_label">Lisää uusi kauppa</string>
+    <string-array name="cart_row_contextmenu">
+        <item>Muokkaa</item>
+        <item>Poista</item>
+    </string-array>
 </resources>

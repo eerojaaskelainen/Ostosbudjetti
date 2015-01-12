@@ -41,6 +41,7 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
     public static final int OSTOSLISTA_ACTIVITYREULT = 20;
     // Yksilöity luku aktivityn tuloskäsittelyyn:
     public static final int KAUPPA_ACTIVITYREULT = 30;
+    // Yksilöity luku ostoslistan tuloskäsittelyyn
     //Ostoskanta kanta;
 
 

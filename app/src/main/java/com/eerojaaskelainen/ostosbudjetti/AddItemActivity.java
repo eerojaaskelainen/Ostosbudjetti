@@ -1,8 +1,8 @@
 package com.eerojaaskelainen.ostosbudjetti;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -33,6 +33,10 @@ public class AddItemActivity extends ActionBarActivity {
             // Vääränlainen parametri, ei voitu määrittää Ostoskoriksi...
             throw new IllegalArgumentException("Invalid basket");
         }
+
+        // Tutkitaan, tullaanko tuoteriviltä, eli onko muokkaus kyseessä
+        // TODO: Määritä ostosrivin poiminta ja päivitystoimet (Extrassa tulee mukana ostosrivi_id)
+        
         setResult(RESULT_CANCELED); // Defaultti resultti on canceled. Muutetaan sitte tarvittaessa.
     }
 
