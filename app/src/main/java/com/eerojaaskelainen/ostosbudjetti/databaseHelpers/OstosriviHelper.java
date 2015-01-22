@@ -19,16 +19,19 @@ public class OstosriviHelper {
 
         String limit = null;
 
-        if (koriID != null) {
-            kysely.appendWhere(Ostosrivi.FULL_OSTOSKORI + "=" + koriID);
+        if (koriID != null && riviID != null) {
+            kysely.appendWhere(Ostosrivi.FULL_OSTOSKORI + " = " + koriID + " AND "+ Ostosrivi.FULL_ID + " = "+ riviID);
         }
-        if (riviID != null) {
-            kysely.appendWhere(Ostosrivi.FULL_ID + "=" + riviID);
-            kysely.setDistinct(true);
-            limit = "1";
+        else {
+            if (koriID != null) {
+                kysely.appendWhere(Ostosrivi.FULL_OSTOSKORI + "=" + koriID);
+            } else if (riviID != null) {
+                    kysely.appendWhere(Ostosrivi.FULL_ID + "=" + riviID);
+                kysely.setDistinct(true);
+                limit = "1";
+            }
         }
-
-        return kysely.query(
+        Cursor tulos = kysely.query(
                 readableDatabase,
                 lisaaRivisummaProjectioon(projection),
                 selection,
@@ -38,6 +41,8 @@ public class OstosriviHelper {
                 sortOrder,
                 limit
         );
+        tulos.moveToFirst();
+        return tulos;
     }
 
     /**
@@ -53,6 +58,7 @@ public class OstosriviHelper {
             vieProjection = new String[] {
                     Ostosrivi.OSTOSKORI,
                     Ostosrivi._ID,
+                    Ostosrivi.TUOTE,
                     Tuote.EAN,
                     Tuote.NIMI,
                     Ostosrivi.A_HINTA,
@@ -72,7 +78,7 @@ public class OstosriviHelper {
         return vieProjection;
     }
 
-    public static long luoOstosrivi(SQLiteDatabase writableDatabase, long ostoskori_id, long tuote_id, double ahinta, int lkm) {
+    public static long luoOstosrivi(SQLiteDatabase writableDatabase, long ostoskori_id, long tuote_id, double ahinta, double lkm) {
         // Tutki onko ostoskori olemassa:
         if (!OstoskoriHelper.onkoOstoskoria(writableDatabase,ostoskori_id)) {
             throw new IllegalArgumentException("There is no basket with the ID "+ ostoskori_id);
@@ -86,9 +92,14 @@ public class OstosriviHelper {
         if (lista.getCount()>0) {
             lista.moveToFirst();
             // Sama tuote on jo olemassa. Tarkista ja tee mahdolliset päivitykset:
-            paivitaOstosrivi(writableDatabase,
-                    lista.getLong(lista.getColumnIndex(Ostosrivi._ID)),
-                    ahinta, lkm);
+            ContentValues cV = new ContentValues();
+                cV.put(Ostosrivi.TUOTE,tuote_id);
+                cV.put(Ostosrivi.A_HINTA,ahinta);
+                cV.put(Ostosrivi.LKM,lkm);
+
+            muokkaaOstosrivia(writableDatabase,
+                    Long.toString(lista.getLong(lista.getColumnIndex(Ostosrivi._ID))),
+                    cV);
 
             return lista.getLong(lista.getColumnIndex(Ostosrivi._ID));
         }
@@ -109,8 +120,11 @@ public class OstosriviHelper {
         return writableDatabase.insert(Ostosrivi.TABLE_NAME,null,cV);
     }
 
-    private static void paivitaOstosrivi(SQLiteDatabase writableDatabase, long ostosrivi_id, double ahinta, int lkm) {
-        //TODO: Tee ostosrivin päivitykset!
-        throw new UnsupportedOperationException("Ostosrivin päivitystä ei oo tehty viel");
+    public static int muokkaaOstosrivia(SQLiteDatabase writableDatabase, String ostosRiviID,ContentValues values) {
+        if (!(values.containsKey(Ostosrivi.TUOTE) && values.containsKey(Ostosrivi.LKM) && values.containsKey(Ostosrivi.A_HINTA)))
+            throw new IllegalArgumentException("Update basket: Values must contain product_id, lkm, ahinta!");
+
+        if (ostosRiviID == null) throw new IllegalArgumentException("Update basket: Basket ID must be valid!");
+        return writableDatabase.update(Ostosrivi.TABLE_NAME,values,Ostosrivi._ID + " = "+ ostosRiviID,null);
     }
 }

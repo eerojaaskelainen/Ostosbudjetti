@@ -1,34 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Ostosbudjetti</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">Shopping Budget</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_edit_shoppinglist">Muokkaa ostoskoria</string>
-    <string name="title_activity_add_item">Lisää tuote</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="dialog_shoppinglist_name">Muokkaa listan nimeä</string>
-    <string name="main_select_previous_cart">Valitse edellinen lista</string>
-    <string name="main_select_previous_cart_title">Valitse edellinen kori</string>
-    <string name="main_create_new_basket_btn_text">Luo uusi kauppakäynti</string>
-    <string name="main_title_text">Mitä haluat tehdä?</string>
-    <string name="alert_basket_store_failed">Ostoskorin tallennus ei onnistunut! Kokeile uudelleen</string>
-    <string name="alert_basket_invalid">Ostoskori ei ole kelvollinen! Tarkista että olet valinnut ostoskorille kaupan!</string>
-    <string name="alert_things_not_ok">Huomio! Kaikki ei ole kunnossa!</string>
-    <string name="alert_confirmation_message">\n\nHaluatko varmasti poistua tallentamatta?</string>
-    <string name="alert_no_rows_in_basket">Ostoskorissa ei ole yhtään tuotetta!\n\nHaluatko silti sen tallettaa?</string>
-    <string name="alert_no_rows_no_button">En. Hävitä kori</string>
-    <string name="yes">Kyllä</string>
-    <string name="alert_date_longer_than_today">Aika ei voi olla myöhempi kuin mitä tämä hetki on!</string>
-    <string name="shops_dialog_select_shop">Valitse kauppa:</string>
-    <string name="shops_fragment_dropdown_initial_label">Kaupan nimi</string>
-    <string name="shops_fragment_dropdown_title">Kauppa:</string>
-    <string name="title_activity_shops">ShopsActivity</string>
-    <string name="shops_dialog_add_new_shop_button_label">Lisää uusi kauppa</string>
+    <string name="title_activity_edit_shoppinglist">Edit the basket</string>
+    <string name="title_activity_add_item">Add item</string>
+    <string name="dialog_shoppinglist_name">Edit basket name</string>
+    <string name="main_select_previous_cart">Pick previous</string>
+    <string name="main_select_previous_cart_title">Pick previous basket</string>
+    <string name="main_create_new_basket_btn_text">Create new basket</string>
+    <string name="main_title_text">What would you want to do?</string>
+    <string name="alert_basket_store_failed">Basket storing failed. Please try again.</string>
+    <string name="alert_basket_invalid">Basket is invalid! Make sure that you did select store.</string>
+    <string name="alert_things_not_ok">Alert! Things are NOT okay!</string>
+    <string name="alert_confirmation_message">\n\nDo you really want to exit without saving?</string>
+    <string name="alert_no_rows_in_basket">Basket does not contain anything!\n\nWant to save it anyway?</string>
+    <string name="alert_no_rows_no_button">No. Destroy the basket</string>
+    <string name="yes">Yes</string>
+    <string name="alert_date_longer_than_today">Time cannot be later than now...</string>
+    <string name="shops_dialog_select_shop">Pick a shop:</string>
+    <string name="shops_fragment_dropdown_initial_label">Shop name</string>
+    <string name="shops_fragment_dropdown_title">Shop:</string>
+    <string name="title_activity_shops">Shops</string>
+    <string name="shops_dialog_add_new_shop_button_label">Add new shop</string>
+    <string name="alert_basket_row_not_found">Basket was not found from database!</string>
+    <string name="save">Save</string>
+    <string name="add">Add</string>
+    <string name="alert_product_store_failed">Product storing failed!</string>
+    <string name="name_label">Name:</string>
+    <string name="eancode_label">EAN-\ncode:</string>
+    <string name="category_label">Category:</string>
+    <string name="hint_select_category">Pick the category</string>
+    <string name="alert_product_not_found_from_database">Product was not found from database!</string>
+    <string name="barcode_scanner_not_found">Viivakoodeja lukevaa ohjelmaa ei ole asennettu!</string>
+    <string name="alert_barcode_scan_error">Barcode read failed! Please try again.</string>
+    <string name="alert_invalid_field_positive_response">Ok, i\'ll fix the fields</string>
+    <string name="alert_invalid_field_negative_response">Just cancel the whole deal</string>
+    <string name="product_manufacturer_label">Manufacturer:</string>
+    <string name="amount_lbl">Amount:</string>
+    <string name="currency">€</string>
+    <string name="unit_price_lbl">Unit price:</string>
+    <string name="total_lbl">"Total: "</string>
 
     <string-array name="cart_row_contextmenu">
         <item>Edit</item>
         <item>Delete</item>
     </string-array>
+    <string name="alert_invalid_field_message">Check amount and unit price</string>
+    <string name="alert_invalid_product">Product information is not ok.</string>
 
 </resources>

@@ -7,12 +7,69 @@ import android.provider.BaseColumns;
  * Created by Eero on 3.1.2015.
  */
 
-public final class Tuote implements BaseColumns{
+public class Tuote implements BaseColumns{
+
+    private long tuoteID;
+    private String valmistaja;
+    private String tuotenimi;
+    private String eanKoodi;
+    private Double viimeisinAhinta;
+
+    public long getTuoteID() {
+        return tuoteID;
+    }
+
+    public void setTuoteID(long tuoteID) {
+        this.tuoteID = tuoteID;
+    }
+
+    public String getValmistaja() {
+        return valmistaja;
+    }
+
+    public void setValmistaja(String valmistaja) {
+        this.valmistaja = valmistaja;
+    }
+
+    public String getTuotenimi() {
+        return tuotenimi;
+    }
+
+    public void setTuotenimi(String tuotenimi) {
+        this.tuotenimi = tuotenimi;
+    }
+
+    public String getEanKoodi() {
+        return eanKoodi;
+    }
+
+    public void setEanKoodi(String eanKoodi) {
+        this.eanKoodi = eanKoodi;
+    }
+
+    public Double getViimeisinAhinta() {
+        return viimeisinAhinta;
+    }
+
+    public void setViimeisinAhinta(Double viimeisinAhinta) {
+        this.viimeisinAhinta = viimeisinAhinta;
+    }
+
+    public Tuote() {
+        tuoteID =-1;
+        valmistaja = null;
+        tuotenimi = null;
+        eanKoodi = null;
+        viimeisinAhinta = -1D;
+    }
+
+
 
     public static final String TABLE_NAME = "tuotteet";
     public static final String EAN = "tuote_ean";
     public static final String NIMI = "tuotenimi";
     public static final String VALMISTAJA = "valmistaja";
+    public static final String VIIMEISINHINTA = "viimeisin_hinta";
     //public static final String LUOKITUS = "luokitus_id";
 
     // Sarakkeiden nimet taulunimen kera Joineille:
@@ -22,6 +79,9 @@ public final class Tuote implements BaseColumns{
     public static final String FULL_VALMISTAJA = TABLE_NAME + "." + VALMISTAJA;
     //public static final String FULL_LUOKITUS = TABLE_NAME + "." + LUOKITUS;
 
+    public static final String VIIMEISINHINTA_CONSTRUCT = "(SELECT "+ Ostosrivi.A_HINTA + " FROM " + Ostosrivi.TABLE_NAME +
+                                                        " WHERE " + Tuote.FULL_ID + " = "+ Ostosrivi.FULL_TUOTE +
+                                                        " ORDER BY " + Ostosrivi.FULL_ID +" DESC LIMIT 1) AS " + VIIMEISINHINTA;
 
     /**
      * Sijainti-taulun luontilause:

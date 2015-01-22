@@ -6,10 +6,8 @@ import android.os.Parcelable;
 import android.provider.BaseColumns;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by Eero on 30.12.2014.
@@ -17,6 +15,8 @@ import java.util.List;
 public class Ostoskori implements Parcelable, BaseColumns {
 
     private long id;
+    private long kauppa_id;
+    private Long pvm;
 
     public long getId() {
         return id;
@@ -33,8 +33,7 @@ public class Ostoskori implements Parcelable, BaseColumns {
         this.kauppa_id = kauppa_id;
     }
 
-    private long kauppa_id;
-    private Long pvm;
+
 
 
     /**

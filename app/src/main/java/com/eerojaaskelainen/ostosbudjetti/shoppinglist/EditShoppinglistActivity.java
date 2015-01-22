@@ -20,9 +20,9 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.eerojaaskelainen.ostosbudjetti.AddItemActivity;
 import com.eerojaaskelainen.ostosbudjetti.R;
 import com.eerojaaskelainen.ostosbudjetti.contentproviders.OstoksetContentProvider;
+import com.eerojaaskelainen.ostosbudjetti.items.AddItemActivity;
 import com.eerojaaskelainen.ostosbudjetti.models.Kauppa;
 import com.eerojaaskelainen.ostosbudjetti.models.Ostoskori;
 
@@ -44,6 +44,8 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
     // Yksilöity luku ostoslistan tuloskäsittelyyn
     //Ostoskanta kanta;
 
+    // Fragmentti jossa ostoskorin sisältö:
+    ProductsListFragment tuotelista;
 
     protected Ostoskori ostoskori;
 
@@ -60,9 +62,10 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
      */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable("Ostoskori",ostoskori);
-
         super.onSaveInstanceState(outState);
+        outState.putParcelable("Ostoskori",ostoskori);
+        if (tuotelista != null)
+            getSupportFragmentManager().putFragment(outState,"tuotelista",tuotelista);
     }
 
     /**
@@ -73,10 +76,11 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
      */
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState.containsKey("Ostoskori"))
             ostoskori = savedInstanceState.getParcelable("Ostoskori");
-
-        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.containsKey("tuotelista"))
+            getSupportFragmentManager().getFragment(savedInstanceState,"tuotelista");
     }
 
     @Override
@@ -171,7 +175,7 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
      */
     private void asetaTuotteetFragmentti() {
 
-        ProductsListFragment tuotelista = new ProductsListFragment();
+        tuotelista = new ProductsListFragment();
 
         // Viedään ostoskorin ID argumenttina, jotta voidaan lisätä /etsiä tuotteita:
         Bundle argut = new Bundle();
@@ -408,10 +412,11 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
                     // TODO: Hanskaa kaupan valinnan käsittelyt
 
                 break;
-                //case OSTOSLISTA_ACTIVITYREULT:
+                case OSTOSLISTA_ACTIVITYREULT:
                 // TODO: Hanskaa ostosrivin lisäyksen käsittelyt
                 // Rivi lisätty. Päivitä listaus
-                //break;
+                    tuotelista.paivitaTuotelista();
+                    break;
             }
         }
     }

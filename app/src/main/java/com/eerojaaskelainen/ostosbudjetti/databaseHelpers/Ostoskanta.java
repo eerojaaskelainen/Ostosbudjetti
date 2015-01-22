@@ -14,7 +14,6 @@ import com.eerojaaskelainen.ostosbudjetti.models.Ostosrivi;
 import com.eerojaaskelainen.ostosbudjetti.models.Sijainti;
 import com.eerojaaskelainen.ostosbudjetti.models.Tuote;
 
-import java.sql.Date;
 import java.util.Calendar;
 import java.util.List;
 
@@ -190,5 +189,28 @@ public class Ostoskanta extends SQLiteOpenHelper {
 
     public int poistaOstoskori(String ostoskoriID) {
         return OstoskoriHelper.poistaOstoskori(this.getWritableDatabase(),ostoskoriID);
+    }
+
+    public int muokkaaOstosrivia(String ostosRiviID, ContentValues values) {
+        return OstosriviHelper.muokkaaOstosrivia(this.getWritableDatabase(),ostosRiviID,values);
+    }
+
+    public Cursor haeTuotteetCursor(String[] projection, String selection, String[] selectionArgs, String sortOrder, String ean) {
+        return TuoteHelper.haeTuoteCursor(this.getReadableDatabase(),projection,selection,selectionArgs,sortOrder,null,ean);
+    }
+
+    public int muokkaaTuotetta(String tuoteID, ContentValues values) {
+        return TuoteHelper.muokkaaTuotetta(this.getWritableDatabase(),tuoteID,values);
+    }
+
+    public long luoTuote(ContentValues values) {
+        if (!(values.containsKey(Tuote.NIMI) || values.containsKey(Tuote.EAN) || values.containsKey(Tuote.VALMISTAJA)))
+            throw new IllegalArgumentException("New product must contain "+ Tuote.NIMI + ", "+ Tuote.EAN + " and "+ Tuote.VALMISTAJA +" values!");
+
+
+        return TuoteHelper.lisaaTuote(this.getWritableDatabase(),
+                values.getAsString(Tuote.NIMI),
+                values.getAsString(Tuote.VALMISTAJA),
+                values.getAsString(Tuote.EAN));
     }
 }

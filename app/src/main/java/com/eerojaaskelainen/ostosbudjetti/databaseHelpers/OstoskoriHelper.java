@@ -15,7 +15,7 @@ public class OstoskoriHelper {
 
     public static Ostoskori haeOstoskori(SQLiteDatabase readableDatabase, long ostoskoriID) {
         Cursor c = haeOstoskoriCursor(readableDatabase,
-                new String[]{Ostoskori._ID,Ostoskori.KAUPPA,Ostoskori.PVM},
+                new String[]{Ostoskori.FULL_ID,Ostoskori.KAUPPA,Ostoskori.PVM},
                 null,
                 null,
                 null,
@@ -62,7 +62,7 @@ public class OstoskoriHelper {
 
 
 protected static final boolean onkoOstoskoria(SQLiteDatabase db, long ostoskori_id) {
-    Cursor c = haeOstoskoriCursor(db, new String[] {Ostoskori._ID}, null,null,null,Long.toString(ostoskori_id));
+    Cursor c = haeOstoskoriCursor(db, new String[] {Ostoskori.FULL_ID}, null,null,null,Long.toString(ostoskori_id));
 
     return (c.getCount()>0);
 }

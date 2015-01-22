@@ -19,10 +19,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-import com.eerojaaskelainen.ostosbudjetti.AddItemActivity;
 import com.eerojaaskelainen.ostosbudjetti.R;
 import com.eerojaaskelainen.ostosbudjetti.binders.OstoskoriTuotelistaBinder;
 import com.eerojaaskelainen.ostosbudjetti.contentproviders.OstoksetContentProvider;
+import com.eerojaaskelainen.ostosbudjetti.items.AddItemActivity;
 import com.eerojaaskelainen.ostosbudjetti.models.Ostoskori;
 import com.eerojaaskelainen.ostosbudjetti.models.Ostosrivi;
 import com.eerojaaskelainen.ostosbudjetti.models.Tuote;
@@ -102,6 +102,9 @@ public class ProductsListFragment extends Fragment implements LoaderManager.Load
         registerForContextMenu(tuotelista); // Rekisteröidään tarjoamaan contextmenun kuuntelijalle eventtejä.s
     }
 
+    public void paivitaTuotelista() {
+        getLoaderManager().restartLoader(1,null,this);
+    }
     // Luodaan tuotelistalle Adapter, sekä Loader käyttämään sitä
     private void luoTuotelistaAdapterit() {
         tuotelistaAdapter = new SimpleCursorAdapter(
@@ -198,7 +201,7 @@ public class ProductsListFragment extends Fragment implements LoaderManager.Load
                 // Haetaan kori:
                 EditShoppinglistActivity a = (EditShoppinglistActivity)getActivity();
                 i.putExtra("Ostoskori",a.ostoskori);
-                startActivityForResult(i,EditShoppinglistActivity.OSTOSLISTA_ACTIVITYREULT);
+                getActivity().startActivityForResult(i,EditShoppinglistActivity.OSTOSLISTA_ACTIVITYREULT);  // Laita fragmentissa getactivity, muuten requestCode on mitäsattuu.
                 return true;
 
             case 1: // Poista

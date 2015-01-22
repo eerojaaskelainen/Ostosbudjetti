@@ -29,6 +29,8 @@ public class TuoteHelper {
             limit = "1";
         }
 
+        projection = lisaaViimeisinhinta(projection);
+
         Cursor c = kysely.query(
                 readableDatabase,
                 projection,
@@ -39,9 +41,28 @@ public class TuoteHelper {
                 sortOrder,
                 limit
         );
-
+        c.moveToFirst();
         return c;
     }
+
+    private static String[] lisaaViimeisinhinta(String[] projection) {
+        if (projection == null) {
+            return new String[] {Tuote._ID,
+                    Tuote.NIMI,
+                    Tuote.EAN,
+                    Tuote.VALMISTAJA,
+                    Tuote.VIIMEISINHINTA_CONSTRUCT};
+        }
+        else {
+            String[] tulos = new String[projection.length+1];
+            for (int i=0; i< projection.length;i++) {
+                tulos[i] = projection[i];
+            }
+            tulos[projection.length] = Tuote.VIIMEISINHINTA_CONSTRUCT;
+            return  tulos;
+        }
+    }
+
     public static final Cursor haeValmistajanTuotteet(SQLiteDatabase readableDatabase,String[] projection, String selection, String[] selectionArgs, String sortOrder, String valmistaja) {
         //TODO: Tee valmistajan tuotelistahaku!
         throw new UnsupportedOperationException("Valmistajan tuotelistahakua ei ole tehty viel");
@@ -82,5 +103,10 @@ public class TuoteHelper {
         cV.put(Tuote.VALMISTAJA,valmistaja);
         cV.put(Tuote.NIMI,tuotenimi);
         return writableDatabase.insert(Tuote.TABLE_NAME,null,cV);
+    }
+
+    public static int muokkaaTuotetta(SQLiteDatabase writableDatabase, String tuoteID, ContentValues values) {
+        //TODO: Tee tuotteen muokkausmetodi!
+        throw new UnsupportedOperationException("TUotemuokkaust ei viel tehty!");
     }
 }

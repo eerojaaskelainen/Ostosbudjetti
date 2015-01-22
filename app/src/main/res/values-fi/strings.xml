@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="dialog_shoppinglist_name">Muokkaa listan nimeä</string>
-    <string name="main_select_previous_cart">Valitse edellinen lista</string>
+    <string name="main_select_previous_cart">Valitse edellinen</string>
     <string name="main_select_previous_cart_title">Valitse edellinen kori</string>
     <string name="main_create_new_basket_btn_text">Luo uusi kauppakäynti</string>
     <string name="main_title_text">Mitä haluat tehdä?</string>
@@ -17,8 +17,33 @@
     <string name="shops_fragment_dropdown_initial_label">Kaupan nimi</string>
     <string name="shops_fragment_dropdown_title">Kauppa:</string>
     <string name="shops_dialog_add_new_shop_button_label">Lisää uusi kauppa</string>
+    <string name="alert_basket_row_not_found">Ostosriviä ei löytynyt kannasta!</string>
+    <string name="save">Tallenna</string>
+    <string name="add">Lisää</string>
+    <string name="alert_product_store_failed">Tuotteen tallennus ei onnistunut!</string>
+    <string name="name_label">Nimi:</string>
+    <string name="eancode_label">EAN-\nkoodi:</string>
+    <string name="category_label">Kategoria:</string>
+    <string name="hint_select_category">Valitse kategoria</string>
+    <string name="alert_product_not_found_from_database">Tuotetta ei löytynyt kannasta!</string>
+    <string name="barcode_scanner_not_found">Viivakoodeja lukevaa ohjelmaa ei ole asennettu!</string>
+    <string name="alert_barcode_scan_error">Viivakoodin käsittely ei onnistunut! Yritä uudelleen.</string>
+    <string name="alert_invalid_field_message">Tarkista lukumäärä ja a-hinta</string>
+    <string name="alert_invalid_product">Tuotteen tiedot eivät ole kunnossa.</string>
+    <string name="alert_invalid_field_positive_response">Ok, minä korjaan kentän</string>
+    <string name="alert_invalid_field_negative_response">Perutaan koko homma</string>
+    <string name="product_manufacturer_label">Valmistaja:</string>
+    <string name="amount_lbl">Lukumäärä:</string>
+    <string name="currency">€</string>
+    <string name="unit_price_lbl">á-hinta:</string>
+    <string name="total_lbl">"Yhteensä: "</string>
     <string-array name="cart_row_contextmenu">
         <item>Muokkaa</item>
         <item>Poista</item>
     </string-array>
+    <string name="action_settings">Asetukset</string>
+    <string name="app_name">Ostosbudjetti</string>
+    <string name="title_activity_add_item">Lisää tuote</string>
+    <string name="title_activity_edit_shoppinglist">Muokkaa koria</string>
+    <string name="title_activity_shops">Kaupat</string>
 </resources>

@@ -1,75 +1,21 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.eerojaaskelainen.ostosbudjetti.AddItemActivity"
-    android:orientation="vertical"
-   >
+    tools:context="com.eerojaaskelainen.ostosbudjetti.items.AddItemActivity"
+    android:fillViewport="false">
+<LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/section_vertical_margin">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Nimi: "
-            android:id="@+id/additem_name_txt" />
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/additem_name_input"
-            android:layout_weight="2" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/section_vertical_margin">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="EAN-\nkoodi: "
-            android:id="@+id/additem_ean_txt"
-            android:layout_marginBottom="@dimen/section_vertical_margin" />
-
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/additem_ean_input"
-            android:layout_weight="2" />
-
-        <ImageButton
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_menu_barcode"
-            android:id="@+id/additem_ean_barcode_btn"
-            android:adjustViewBounds="false"
-            android:scaleType="centerCrop" />
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Kategoria: "
-        android:id="@+id/additem_category_txt" />
-
-    <Spinner
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/additem_category_select"
-        android:spinnerMode="dropdown"
-        android:contentDescription="Valitse kategoria" />
+        android:id="@+id/additem_productfragment_placeholder"
+        />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -82,11 +28,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="á-hinta: "
+            android:text="@string/unit_price_lbl"
             android:id="@+id/additem_unitprice_txt" />
 
         <EditText
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"
             android:ems="4"
@@ -97,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="eur"
+            android:text="@string/currency"
             android:id="@+id/additem_unitprice_currency" />
     </LinearLayout>
 
@@ -110,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Lukumäärä: "
+            android:text="@string/amount_lbl"
             android:id="@+id/additem_amount_txt" />
 
         <EditText
@@ -118,21 +64,24 @@
             android:layout_height="wrap_content"
             android:inputType="number"
             android:ems="4"
-            android:id="@+id/additem_amount_input" />
+            android:id="@+id/additem_amount_input"
+            android:text="1" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="+"
             android:id="@+id/additem_amount_plus"
-            style="?android:attr/buttonStyleSmall" />
+            style="?android:attr/buttonStyleSmall"
+            android:onClick="onPlusClicked" />
 
         <Button
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="-"
-            android:id="@+id/additem_amount_minus" />
+            android:id="@+id/additem_amount_minus"
+            android:onClick="onMinusClicked" />
     </LinearLayout>
 
     <TextView
@@ -152,7 +101,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Peruuta"
+            android:text="@android:string/cancel"
             android:id="@+id/additem_cancel"
             android:layout_gravity="left"
             android:layout_weight="2" />
@@ -160,10 +109,13 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lisää"
+            android:text="@string/add"
             android:id="@+id/additem_ok"
             android:layout_gravity="right"
-            android:layout_weight="2" />
+            android:layout_weight="2"
+            android:onClick="onTallennaClick"/>
     </LinearLayout>
 
 </LinearLayout>
+
+</ScrollView>

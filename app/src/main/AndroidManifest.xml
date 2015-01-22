@@ -26,7 +26,7 @@
                 android:value="com.eerojaaskelainen.ostosbudjetti.MainActivity" />
         </activity>
         <activity
-            android:name=".AddItemActivity"
+            android:name=".items.AddItemActivity"
             android:label="@string/title_activity_add_item"
             android:parentActivityName=".shoppinglist.EditShoppinglistActivity" >
             <meta-data
