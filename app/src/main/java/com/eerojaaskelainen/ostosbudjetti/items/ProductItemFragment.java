@@ -21,8 +21,8 @@ import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.SimpleCursorAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.eerojaaskelainen.ostosbudjetti.CursorLoaderAutoCompleteTextView;
@@ -54,10 +54,17 @@ public class ProductItemFragment extends Fragment implements LoaderManager.Loade
             android.R.id.text1
     };
     protected static final int valmistajatMinimumTreshold = 3;
+
+    //Keräävät listat:
+    protected LinearLayout valmistajaLayout;
+    protected LinearLayout nimiLayout;
+    protected LinearLayout eanLayout;
+    protected ImageButton showHideButton;
+
     // muut:
     protected EditText nimiLbl;
     protected EditText eanLbl;
-    protected Spinner kategoria;
+    //protected Spinner kategoria;
     private ImageButton viivakoodiBtn;
 
     public static final String TUOTE_EAN = "TuoteEAN";
@@ -124,10 +131,15 @@ public class ProductItemFragment extends Fragment implements LoaderManager.Loade
      */
     private void alustaKentat(View fragmentti) {
 
+        valmistajaLayout = (LinearLayout)fragmentti.findViewById(R.id.product_manufacturer_layout);
+        nimiLayout = (LinearLayout)fragmentti.findViewById(R.id.product_name_layout);
+        eanLayout = (LinearLayout)fragmentti.findViewById(R.id.product_ean_layout);
+        showHideButton = (ImageButton)fragmentti.findViewById(R.id.product_showhide_button);
+
         valmistajaLbl = (CursorLoaderAutoCompleteTextView)fragmentti.findViewById(R.id.product_manufacturer_input);
         nimiLbl = (EditText)fragmentti.findViewById(R.id.product_name_input);
         eanLbl = (EditText)fragmentti.findViewById(R.id.product_ean_input);
-        kategoria = (Spinner)fragmentti.findViewById(R.id.product_category_select);
+        //kategoria = (Spinner)fragmentti.findViewById(R.id.product_category_select);
         viivakoodiBtn = (ImageButton)fragmentti.findViewById(R.id.product_ean_barcode_btn);
         viivakoodiBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,6 +161,22 @@ public class ProductItemFragment extends Fragment implements LoaderManager.Loade
             }
         });
         LuoValmistajaEhdotukset(); // Luodaan adapterit ja loaderit kuntoon valmistaja -autocomplete-kenttää varten.
+
+        // Event handleri mahdollista listan aukaisua varten:
+        nimiLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                muutaKenttienNakyvyys(false);
+            }
+        });
+        // Oletustoiminto buttonille:
+        showHideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                muutaKenttienNakyvyys(true);
+            }
+        });
+
     }
 
 
@@ -332,6 +360,9 @@ public class ProductItemFragment extends Fragment implements LoaderManager.Loade
         // Piilotetaan ehdotukset koska niitä ei nyt tarvita:
         valmistajaLbl.dismissDropDown();
 
+        //Piilotetaan muut kentät toistaiseksi:
+        muutaKenttienNakyvyys(true);
+
         return true;
     }
     /**
@@ -367,6 +398,39 @@ public class ProductItemFragment extends Fragment implements LoaderManager.Loade
             mListener.tuoteSelected(alkuperainenTuote);
         }
     }
+
+    private void muutaKenttienNakyvyys(boolean piilossa) {
+        int nakyvyys;
+        if (piilossa) {
+            // Muutetaan nappula avaamaan kentät:
+            showHideButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    muutaKenttienNakyvyys(false);
+                }
+            });
+            showHideButton.setImageResource(android.R.drawable.arrow_down_float);
+
+            nakyvyys = View.GONE;
+        }
+        else {
+            // Muutetaan nappula piilottamaan kentät:
+            showHideButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    muutaKenttienNakyvyys(true);
+                }
+            });
+            showHideButton.setImageResource(android.R.drawable.arrow_up_float);
+
+            nakyvyys = View.VISIBLE;
+        }
+
+        valmistajaLayout.setVisibility(nakyvyys);
+        eanLayout.setVisibility(nakyvyys);
+    }
+
+
 
     // Valmistaja-kentän listausjutut:
 

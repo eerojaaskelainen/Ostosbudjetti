@@ -8,7 +8,8 @@
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/section_vertical_margin">
+        android:layout_marginBottom="@dimen/section_vertical_margin"
+        android:id="@+id/product_manufacturer_layout">
 
 
         <TextView
@@ -27,7 +28,7 @@
             android:layout_weight="2"
             android:inputType="textCapSentences"
             android:imeOptions="actionNext"
-            />
+            android:capitalize="characters" />
     </LinearLayout>
 
 
@@ -35,7 +36,8 @@
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/section_vertical_margin">
+        android:layout_marginBottom="@dimen/section_vertical_margin"
+        android:id="@+id/product_name_layout">
 
 
         <TextView
@@ -57,7 +59,8 @@
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/section_vertical_margin">
+        android:layout_marginBottom="@dimen/section_vertical_margin"
+        android:id="@+id/product_ean_layout">
 
         <TextView
             android:layout_width="wrap_content"
@@ -81,17 +84,24 @@
             android:scaleType="centerCrop" />
     </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
+    <ImageButton
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/category_label" />
+        android:id="@+id/product_showhide_button"
+        android:src="@android:drawable/arrow_up_float" />
 
-    <Spinner
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/product_category_select"
-        android:spinnerMode="dropdown"
-        android:contentDescription="@string/hint_select_category" />
+
+    <!-- <TextView
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:textAppearance="?android:attr/textAppearanceMedium"
+         android:text="@string/category_label" />
+
+     <Spinner
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:id="@+id/product_category_select"
+         android:spinnerMode="dropdown"
+         android:contentDescription="@string/hint_select_category" />-->
 
 </LinearLayout>
