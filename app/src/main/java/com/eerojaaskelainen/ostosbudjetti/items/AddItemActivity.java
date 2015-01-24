@@ -8,9 +8,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -121,6 +123,18 @@ public class AddItemActivity extends ActionBarActivity implements ProductItemFra
         aHintaLbl = (EditText)findViewById(R.id.additem_unitprice_input);
         lkmLbl = (EditText)findViewById(R.id.additem_amount_input);
         saveBtn = (Button)findViewById(R.id.additem_ok);
+
+        // Liitetään tallennustoiminto näppäimiston "Valmis" -painikkeeseen:
+        lkmLbl.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE){
+                    onTallennaClick(null);  // Kun Done-painiketta näppikseltä painetaan, kokeillaan tallentaa kantaan.
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     private void haeVanhaOstosriviArgumenteista(Intent kutsuja) {
@@ -308,6 +322,15 @@ public class AddItemActivity extends ActionBarActivity implements ProductItemFra
             aHintaLbl.setText(valittuTuote.getViimeisinAhinta().toString());
             paivitaTotal();
         }
+    }
+
+    /**
+     * Kun tuotefragmentin viimeisestä syöttökentästä painetaan "seuraava", asetetaan seuraavan kentän fokus.
+     * Tässä tapauksessa fokus asetetaan a-hinta-kenttään.
+     */
+    @Override
+    public void asetaFocusTuotteenJalkeen() {
+        aHintaLbl.requestFocus();
     }
 
     private boolean ostosriviOnUusi() {

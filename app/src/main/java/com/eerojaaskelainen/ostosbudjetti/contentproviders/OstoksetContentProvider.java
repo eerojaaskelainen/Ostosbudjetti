@@ -33,6 +33,8 @@ public class OstoksetContentProvider extends ContentProvider {
     private static final int TUOTTEET = 3;
     private static final int TUOTE_EAN = 31;
 
+    private static final int VALMISTAJAT = 4;
+
     // URIhelperi itsessään: Annetaan defaultti match, eli ei osumaa.
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -50,6 +52,7 @@ public class OstoksetContentProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY,"products",TUOTTEET);
         sUriMatcher.addURI(AUTHORITY,"products/#",TUOTE_EAN);
 
+        sUriMatcher.addURI(AUTHORITY,"manufacturers",VALMISTAJAT);
     }
 
 
@@ -201,6 +204,9 @@ public class OstoksetContentProvider extends ContentProvider {
                 break;
             case TUOTE_EAN:
                 osumat = ostoskanta.haeTuotteetCursor(projection,selection,selectionArgs,sortOrder,uri.getLastPathSegment());
+                break;
+            case VALMISTAJAT:
+                osumat = ostoskanta.haeValmistajatCursor(projection,selection,selectionArgs,sortOrder,null);
                 break;
             default:
                 // Ei osunut yksikään tunnetuista:

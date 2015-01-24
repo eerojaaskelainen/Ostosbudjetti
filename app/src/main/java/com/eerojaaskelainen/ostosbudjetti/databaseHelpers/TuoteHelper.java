@@ -109,4 +109,11 @@ public class TuoteHelper {
         //TODO: Tee tuotteen muokkausmetodi!
         throw new UnsupportedOperationException("TUotemuokkaust ei viel tehty!");
     }
+
+    public static Cursor haeValmistajatCursor(SQLiteDatabase readableDatabase, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        if (projection == null) projection = new String[]{Tuote._ID, Tuote.VALMISTAJA};
+
+        return readableDatabase.query(true, Tuote.TABLE_NAME,
+                projection, selection, selectionArgs,Tuote.VALMISTAJA, null, sortOrder, null);
+    }
 }

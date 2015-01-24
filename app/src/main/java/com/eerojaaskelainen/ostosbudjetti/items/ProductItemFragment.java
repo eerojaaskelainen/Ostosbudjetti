@@ -7,13 +7,25 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
+import com.eerojaaskelainen.ostosbudjetti.CursorLoaderAutoCompleteTextView;
 import com.eerojaaskelainen.ostosbudjetti.R;
 import com.eerojaaskelainen.ostosbudjetti.barcode.Barcode;
 import com.eerojaaskelainen.ostosbudjetti.contentproviders.OstoksetContentProvider;
@@ -29,10 +41,20 @@ import com.eerojaaskelainen.ostosbudjetti.models.Tuote;
  * Use the {@link ProductItemFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProductItemFragment extends Fragment {
+public class ProductItemFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     // Kentät:
-    protected EditText valmistajaLbl;
+    // Valmistajat -autocomplete:
+    protected CursorLoaderAutoCompleteTextView valmistajaLbl;
+    private CursorAdapter valmistajatCursor;
+    private final String[] valmistajatCurKentat = {
+            Tuote.VALMISTAJA
+    };
+    private final int[] valmistajatLayoutKentat = {
+            android.R.id.text1
+    };
+    protected static final int valmistajatMinimumTreshold = 3;
+    // muut:
     protected EditText nimiLbl;
     protected EditText eanLbl;
     protected Spinner kategoria;
@@ -102,7 +124,7 @@ public class ProductItemFragment extends Fragment {
      */
     private void alustaKentat(View fragmentti) {
 
-        valmistajaLbl = (EditText)fragmentti.findViewById(R.id.product_manufacturer_input);
+        valmistajaLbl = (CursorLoaderAutoCompleteTextView)fragmentti.findViewById(R.id.product_manufacturer_input);
         nimiLbl = (EditText)fragmentti.findViewById(R.id.product_name_input);
         eanLbl = (EditText)fragmentti.findViewById(R.id.product_ean_input);
         kategoria = (Spinner)fragmentti.findViewById(R.id.product_category_select);
@@ -113,6 +135,20 @@ public class ProductItemFragment extends Fragment {
                 Barcode.haeViivakoodi(ProductItemFragment.this);
             }
         });
+
+        // IMEAction kuuntelijaa tuotenimelle:
+        nimiLbl.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    // Kun Nimi-kentässä painetaan seuraavaa, asetetaan fokus seuraavaan kenttään:
+                    mListener.asetaFocusTuotteenJalkeen();
+                    return true;    // Eventti hanskattu
+                }
+                else return false;  // Muissa tapauksissa antaa oletuskäsittelijän ottaa ohjat.
+            }
+        });
+        LuoValmistajaEhdotukset(); // Luodaan adapterit ja loaderit kuntoon valmistaja -autocomplete-kenttää varten.
     }
 
 
@@ -139,6 +175,7 @@ public class ProductItemFragment extends Fragment {
                 // Jos halutaan heti alkuun lukea viivakoodi
                 Barcode.haeViivakoodi(ProductItemFragment.this);
         }
+
 
        return view;
     }
@@ -198,6 +235,7 @@ public class ProductItemFragment extends Fragment {
         //super.onActivityResult(requestCode, resultCode, data);
     }
 
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -211,6 +249,7 @@ public class ProductItemFragment extends Fragment {
     public interface OnTuoteSelectedListener {
         public void naytaVirhe(int virheteksti, final boolean lopetetaanko);
         public void tuoteSelected(Tuote valittuTuote);
+        public void asetaFocusTuotteenJalkeen();
     }
 
     /**
@@ -290,6 +329,8 @@ public class ProductItemFragment extends Fragment {
         nimiLbl.setText(alkuperainenTuote.getTuotenimi());
         eanLbl.setText(alkuperainenTuote.getEanKoodi());
 
+        // Piilotetaan ehdotukset koska niitä ei nyt tarvita:
+        valmistajaLbl.dismissDropDown();
 
         return true;
     }
@@ -326,4 +367,101 @@ public class ProductItemFragment extends Fragment {
             mListener.tuoteSelected(alkuperainenTuote);
         }
     }
+
+    // Valmistaja-kentän listausjutut:
+
+    private void LuoValmistajaEhdotukset()
+    {
+        valmistajatCursor = new SimpleCursorAdapter(getActivity(),
+                android.R.layout.simple_list_item_1,
+                null,
+                valmistajatCurKentat,
+                valmistajatLayoutKentat,
+                0);
+
+        valmistajaLbl.setAdapter(valmistajatCursor);
+        // Määritetään onClickListener (Tällä saadaan fiksumpaa dataa talletettua valmistajakenttään:
+        valmistajaLbl.setOnItemClickListener( new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor c = (Cursor)parent.getItemAtPosition(position);
+                valmistajaLbl.setText(c.getString(c.getColumnIndex(Tuote.VALMISTAJA)));
+                // c = null;
+            }
+        });
+        // Määritetään filtteröinti (eli kun kirjoitetaan tekstiä, niin suodatetaan tuloksia sitä mukaa):
+        // HUOM! Normaali filtteri ei ilmeisesti pelaa fiksusti, kun kursori tulee Loaderin tarjoamana. Siksi implementoidaan oma tekstikenttä ja kuunnellaan sitä.
+        valmistajaLbl.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length()>= valmistajatMinimumTreshold) {
+                    // Vähimmäismäärä merkkejä kirjoitettu, joten tehdään suodatus:
+                    Bundle args = new Bundle();
+                    args.putString(Tuote.VALMISTAJA, s.toString());
+                    getLoaderManager().restartLoader(1, args, ProductItemFragment.this);
+                }
+            }
+        });
+
+
+        getLoaderManager().initLoader(1,null,this);
+
+    }
+
+    /**
+     * Loaderi hanskaa valmistajaehdotuksen listauksen toimituksen
+     * @param i     mikä kursori halutaan ladata (tässä ei merkitystä)
+     * @param bundle    Mahdolliset argumentit (esim. Valmistajan filtteri)
+     * @return  Palauttaa managerille (joka tätä kutsuu) luodun Loaderin.
+     */
+    @Override
+    public Loader onCreateLoader(int i, Bundle bundle) {
+        String rajaus = null;
+
+        if (bundle != null){
+            rajaus = Tuote.VALMISTAJA + " LIKE '%"+ bundle.getString(Tuote.VALMISTAJA,null) + "%'";
+        }
+
+        return new CursorLoader(
+                getActivity(),
+                Uri.withAppendedPath(OstoksetContentProvider.CONTENT_URI,"manufacturers"),
+                null,
+                rajaus,null,null
+        );
+    }
+
+    /**
+     * Kun loader on saanut latauksen valmiiksi, aktivoidaan kursori.
+     * @param loader    Lataaja, joka on toimittanut latauksen
+     * @param c         Kursori, joka on valmis asetettavaksi
+     */
+    @Override
+    public void onLoadFinished(Loader loader, Cursor c) {
+        if (valmistajatCursor != null && c != null) {
+            valmistajatCursor.swapCursor(c);    // otetaan kursori käyttöön
+        }
+    }
+
+    /**
+     * Kun loader käskee nollaamaan adapterin (esim. kun näyttö tuhotaan):
+     * @param loader    Lataaja joka halutaan poistettavan.
+     */
+    @Override
+    public void onLoaderReset(Loader loader) {
+            if (valmistajatCursor != null)
+            {
+                valmistajatCursor = null;
+            }
+    }
+
 }

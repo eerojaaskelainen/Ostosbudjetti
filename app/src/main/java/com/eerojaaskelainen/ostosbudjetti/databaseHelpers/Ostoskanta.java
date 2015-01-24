@@ -217,4 +217,10 @@ public class Ostoskanta extends SQLiteOpenHelper {
     public int poistaOstosrivi(String ostoskoriID, String riviID) {
         return OstosriviHelper.poistaOstosrivi(this.getWritableDatabase(),ostoskoriID,riviID);
     }
+
+    public Cursor haeValmistajatCursor(String[] projection, String selection, String[] selectionArgs, String sortOrder, String valmistajaNimi) {
+        if (valmistajaNimi == null)
+            return TuoteHelper.haeValmistajatCursor(this.getReadableDatabase(),projection,selection,selectionArgs,sortOrder);
+        return TuoteHelper.haeValmistajanTuotteet(this.getReadableDatabase(),projection,selection,selectionArgs,sortOrder,valmistajaNimi);
+    }
 }

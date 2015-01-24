@@ -15,7 +15,7 @@ public class OstosriviHelper {
 
     public static Cursor haeOstosrivitCursor(SQLiteDatabase readableDatabase, String[] projection, String selection, String[] selectionArgs, String sortOrder, String koriID, String riviID) {
         SQLiteQueryBuilder kysely = new SQLiteQueryBuilder();
-        kysely.setTables(Ostosrivi.TABLE_NAME + " NATURAL JOIN " + Tuote.TABLE_NAME);
+        kysely.setTables(Ostosrivi.TABLE_NAME + " LEFT JOIN " + Tuote.TABLE_NAME + " ON " + Ostosrivi.FULL_TUOTE + " = "+ Tuote.FULL_ID);
 
         String limit = null;
 
@@ -25,7 +25,8 @@ public class OstosriviHelper {
         else {
             if (koriID != null) {
                 kysely.appendWhere(Ostosrivi.FULL_OSTOSKORI + "=" + koriID);
-            } else if (riviID != null) {
+            }
+            if (riviID != null) {
                     kysely.appendWhere(Ostosrivi.FULL_ID + "=" + riviID);
                 kysely.setDistinct(true);
                 limit = "1";
@@ -57,7 +58,7 @@ public class OstosriviHelper {
             // Tyhjä projection, eli kaikki kentät halutaan:
             vieProjection = new String[] {
                     Ostosrivi.OSTOSKORI,
-                    Ostosrivi._ID,
+                    Ostosrivi.FULL_ID + " AS " + Ostosrivi._ID,
                     Ostosrivi.TUOTE,
                     Tuote.EAN,
                     Tuote.NIMI,
@@ -91,11 +92,15 @@ public class OstosriviHelper {
                 null,Long.toString(ostoskori_id),null);
         if (lista.getCount()>0) {
             lista.moveToFirst();
-            // Sama tuote on jo olemassa. Tarkista ja tee mahdolliset päivitykset:
+            // Sama tuote on jo olemassa.
+            //if (lista.getDouble(lista.getColumnIndex(Ostosrivi.FULL_A_HINTA))!= ahinta) //TODO: Kysy käyttäjältä miksi a-hinta on muuttunut.
+            //    throw new AbstractMethodError("Unit price differs from original!");     // Yksikköhinta ei ole sama mitä saman korin edellinen!
+
+            // Lisätään lukumäärää
             ContentValues cV = new ContentValues();
                 cV.put(Ostosrivi.TUOTE,tuote_id);
                 cV.put(Ostosrivi.A_HINTA,ahinta);
-                cV.put(Ostosrivi.LKM,lkm);
+                cV.put(Ostosrivi.LKM,lkm + lista.getDouble(lista.getColumnIndex(Ostosrivi.FULL_LKM)));
 
             muokkaaOstosrivia(writableDatabase,
                     Long.toString(lista.getLong(lista.getColumnIndex(Ostosrivi._ID))),
