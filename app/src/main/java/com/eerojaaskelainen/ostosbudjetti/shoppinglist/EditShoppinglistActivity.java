@@ -23,10 +23,12 @@ import android.widget.Toast;
 import com.eerojaaskelainen.ostosbudjetti.R;
 import com.eerojaaskelainen.ostosbudjetti.contentproviders.OstoksetContentProvider;
 import com.eerojaaskelainen.ostosbudjetti.items.AddItemActivity;
+import com.eerojaaskelainen.ostosbudjetti.items.ProductItemFragment;
 import com.eerojaaskelainen.ostosbudjetti.models.Kauppa;
 import com.eerojaaskelainen.ostosbudjetti.models.Ostoskori;
 
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,7 +36,8 @@ import java.util.Date;
 
 public class EditShoppinglistActivity extends ActionBarActivity implements
         DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener,
-        ShopsFragment.OnKauppaSelectedListener // Kauppalistan muutoskuuntelija
+        ShopsFragment.OnKauppaSelectedListener, // Kauppalistan muutoskuuntelija
+        ProductsListFragment.TuoteListaUpdateListener   // Ostoskorin tuotteiden kuuntelija
 {
 
     public static final String TAG = "EditShoppingListActivity";
@@ -249,7 +252,7 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
         }
 
        // TODO: Lisää käsittelijä, joka katsoo asetuksista, mikä on käyttäjän oletusvalinta uuden tuotteen lisäämiselle...
-        lisaaTuote_Perus();
+        lisaaTuote(true);
 
         //lisaaTuote_Viivakoodi();
     }
@@ -261,12 +264,14 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
 
     /**
      * Avaa normaalin lisäysikkunan, jossa tuotteen tiedot lisätään käsin.
+     * @param b
      */
-    private void lisaaTuote_Perus() {
+    private void lisaaTuote(boolean viivakoodihaku) {
         Intent i = new Intent(this, AddItemActivity.class);
         i.putExtra("Ostoskori", ostoskori);
+        i.putExtra(ProductItemFragment.LUETAAN_VIIVAKOODI_ALUKSI,viivakoodihaku);
 
-        startActivityForResult(i, 100);
+        startActivityForResult(i, OSTOSLISTA_ACTIVITYREULT);
 
     }
 
@@ -413,7 +418,6 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
 
                 break;
                 case OSTOSLISTA_ACTIVITYREULT:
-                // TODO: Hanskaa ostosrivin lisäyksen käsittelyt
                 // Rivi lisätty. Päivitä listaus
                     tuotelista.paivitaTuotelista();
                     break;
@@ -515,5 +519,11 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
     public void onKauppaSelected(long kauppaID) {
         // Talletetaan kaupan ID ostoskoriin:
         ostoskori.setKauppa_id(kauppaID);
+    }
+
+    @Override
+    public void TuoteListaUpdated(double summa) {
+        NumberFormat f = NumberFormat.getCurrencyInstance();
+        ((TextView)findViewById(R.id.shoppinglistedit_total)).setText(getString(R.string.total_lbl) + f.format(summa));
     }
 }

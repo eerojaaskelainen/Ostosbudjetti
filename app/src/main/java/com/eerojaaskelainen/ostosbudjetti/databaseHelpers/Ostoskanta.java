@@ -213,4 +213,8 @@ public class Ostoskanta extends SQLiteOpenHelper {
                 values.getAsString(Tuote.VALMISTAJA),
                 values.getAsString(Tuote.EAN));
     }
+
+    public int poistaOstosrivi(String ostoskoriID, String riviID) {
+        return OstosriviHelper.poistaOstosrivi(this.getWritableDatabase(),ostoskoriID,riviID);
+    }
 }

@@ -67,8 +67,15 @@ public class OstoksetContentProvider extends ContentProvider {
             case OSTOSKORI_ID:
                 return ostoskanta.poistaOstoskori(uri.getLastPathSegment());
             case OSTOSKORIN_RIVI_ID:
-                // TODO: Tee ostosrivin poisto
-                throw new UnsupportedOperationException("Rivin poistoa ei tehty vielä");
+                String koriID;
+                try {
+                    koriID =uri.getPathSegments().get(1);
+                    return ostoskanta.poistaOstosrivi(koriID,uri.getLastPathSegment());
+                }
+                catch (Exception e)
+                {
+                    throw new IllegalArgumentException("Incorrect URI: "+ uri);
+                }
             default:
                 throw new IllegalArgumentException("Incorrect URI: "+ uri);
         }

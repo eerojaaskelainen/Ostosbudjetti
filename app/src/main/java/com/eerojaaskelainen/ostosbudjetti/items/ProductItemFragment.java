@@ -39,6 +39,7 @@ public class ProductItemFragment extends Fragment {
     private ImageButton viivakoodiBtn;
 
     public static final String TUOTE_EAN = "TuoteEAN";
+    public static final String LUETAAN_VIIVAKOODI_ALUKSI = "Luetaan viivakoodi aluksi";
 
     private OnTuoteSelectedListener mListener;
 
@@ -74,13 +75,14 @@ public class ProductItemFragment extends Fragment {
      * @return A new instance of fragment ProductItemFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ProductItemFragment newInstance(String tuoteEAN) {
+    public static ProductItemFragment newInstance(String tuoteEAN,boolean luetaanViivakoodi) {
         ProductItemFragment fragment = new ProductItemFragment();
+        Bundle args = new Bundle();
         if (tuoteEAN != null) {
-            Bundle args = new Bundle();
             args.putString(TUOTE_EAN, tuoteEAN);
-            fragment.setArguments(args);
         }
+        args.putBoolean(LUETAAN_VIIVAKOODI_ALUKSI,luetaanViivakoodi);
+        fragment.setArguments(args);
         return fragment;
     }
 
@@ -121,13 +123,21 @@ public class ProductItemFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_product_item, container, false);
 
         alustaKentat(view);
-        // Tultiin esivalitun tuotteen
-        if (getArguments() != null) {
-            haeTuoteKannasta(getArguments().getString(TUOTE_EAN), false);
+        String ean = getArguments().getString(TUOTE_EAN,null);
+
+
+        if (ean!= null){
+            // Tultiin esivalitun tuotteen kautta
+            haeTuoteKannasta(ean, false);
         }
         else {
             // Ei tuotetta.
             alkuperainenTuote = new Tuote();
+        }
+
+        if (getArguments().getBoolean(LUETAAN_VIIVAKOODI_ALUKSI,false)){
+                // Jos halutaan heti alkuun lukea viivakoodi
+                Barcode.haeViivakoodi(ProductItemFragment.this);
         }
 
        return view;

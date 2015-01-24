@@ -127,4 +127,18 @@ public class OstosriviHelper {
         if (ostosRiviID == null) throw new IllegalArgumentException("Update basket: Basket ID must be valid!");
         return writableDatabase.update(Ostosrivi.TABLE_NAME,values,Ostosrivi._ID + " = "+ ostosRiviID,null);
     }
+
+    public static int poistaOstosrivi(SQLiteDatabase writableDatabase, String ostoskoriID, String riviID) {
+        if (ostoskoriID == null || ostoskoriID.isEmpty())
+            throw new IllegalArgumentException("Basket id must be valid!");
+        if (riviID == null || riviID.isEmpty())
+            throw new IllegalArgumentException("Row id must be valid!");
+
+        Cursor validoi = writableDatabase.query(true,Ostosrivi.TABLE_NAME,new String[]{Ostosrivi._ID},
+                         Ostosrivi._ID + " = ? AND " + Ostosrivi.OSTOSKORI + " = ?",new String[]{riviID,ostoskoriID},
+                null,null,null,"1");
+        if (validoi.getCount() != 1) throw new IllegalArgumentException("Row with id "+ riviID + " is not found from basket with id "+ ostoskoriID);
+
+        return writableDatabase.delete(Ostosrivi.TABLE_NAME, Ostosrivi._ID + " = ?",new String[]{riviID});
+    }
 }

@@ -60,6 +60,8 @@ public class Barcode {
         // Tutkitaan, oliko aktio viivakoodiskannerista, ja mistä niistä?
         String tulos = null;
 
+        if (data == null)
+            return null;
         if (data.getAction().equals("com.google.zxing.client.android.SCAN")) {
             String skannattuEan = data.getStringExtra("SCAN_RESULT");
             if (skannattuEan.length() > 3) {

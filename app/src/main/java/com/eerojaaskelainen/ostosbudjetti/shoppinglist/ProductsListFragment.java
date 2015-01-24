@@ -1,6 +1,8 @@
 package com.eerojaaskelainen.ostosbudjetti.shoppinglist;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -9,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,6 +35,8 @@ import com.eerojaaskelainen.ostosbudjetti.models.Tuote;
  */
 public class ProductsListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    // Kuuntelija tämän fragmentin toiminnalle:
+    private TuoteListaUpdateListener mListener;
 
     // Ostoskorin ID:
     protected long ostoskoriID;
@@ -40,11 +45,13 @@ public class ProductsListFragment extends Fragment implements LoaderManager.Load
     // Adapteri tuotelistalle:
     private SimpleCursorAdapter tuotelistaAdapter;
     // Ja kentät adapterille:
-    private final String[] tuotelistaAdapterSarakkeet = {Tuote.NIMI,
+    private final String[] tuotelistaAdapterSarakkeet = {
+            Tuote.NIMI,
             Ostosrivi.A_HINTA,
             Ostosrivi.LKM,
-            "summa"};
-    private final int[] tuotelistaAdapterKentat = {R.id.cart_row_product_name,
+            Ostosrivi.RIVISUMMA};
+    private final int[] tuotelistaAdapterKentat = {
+            R.id.cart_row_product_name,
             R.id.cart_row_product_unitprice,
             R.id.cart_row_product_amount,
             R.id.cart_row_product_total};
@@ -104,6 +111,7 @@ public class ProductsListFragment extends Fragment implements LoaderManager.Load
 
     public void paivitaTuotelista() {
         getLoaderManager().restartLoader(1,null,this);
+
     }
     // Luodaan tuotelistalle Adapter, sekä Loader käyttämään sitä
     private void luoTuotelistaAdapterit() {
@@ -119,16 +127,6 @@ public class ProductsListFragment extends Fragment implements LoaderManager.Load
         tuotelista.setAdapter(tuotelistaAdapter);
         getLoaderManager().initLoader(1,null,this);
 
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
 
@@ -152,8 +150,26 @@ public class ProductsListFragment extends Fragment implements LoaderManager.Load
         // Ja sitten aletaan paukuttamaan toimintaa:
         if (tuotelistaAdapter != null && cursor != null) {
             // Adapteri ei ole käytössä (joko alkutila tai kutsuttu ao. onLoaderReset() -metodia), dataa on. Joten paukase adapterille dataa!
+            paivitaKorisumma(cursor);
             tuotelistaAdapter.swapCursor(cursor); // Annetaan kursori adapterin syötäväksi.
+
         }
+    }
+
+    private void paivitaKorisumma(Cursor cursor) {
+        double summa = 0;
+        try {
+            cursor.moveToFirst();
+            do {
+                summa += cursor.getDouble(cursor.getColumnIndex(Ostosrivi.RIVISUMMA));
+            }
+            while (cursor.moveToNext());
+            cursor.moveToFirst();
+
+            mListener.TuoteListaUpdated(summa);
+        }
+        catch (Exception e)
+        {}
     }
 
     @Override
@@ -220,6 +236,44 @@ public class ProductsListFragment extends Fragment implements LoaderManager.Load
     }
 
     private void poistaTuoteRivi(long riviID) {
-        //TODO: Lisää tuoterivin poistometodi
+
+        Log.d("ProductListFragment","Poistetaan rivi "+ riviID);
+       int poistettu = getActivity().getContentResolver().delete(
+                Uri.withAppendedPath(OstoksetContentProvider.CONTENT_URI,String.format("baskets/%s/rows/%s",ostoskoriID,riviID)),
+                null,null );
+       if (poistettu ==1) {
+           paivitaTuotelista();
+       }
+        else {
+           // Poisto meni käsille!
+           new AlertDialog.Builder(getActivity())
+                   .setTitle(R.string.alert_things_not_ok)
+                   .setMessage(R.string.alert_basket_row_delete_failed)
+                   .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialog, int which) {
+                           dialog.cancel();
+                       }
+                   }).show();
+       }
+    }
+
+    interface TuoteListaUpdateListener {
+        public void TuoteListaUpdated(double summa);
+    }
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (TuoteListaUpdateListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement TuoteListaUpdateListener");
+        }
+    }
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 }

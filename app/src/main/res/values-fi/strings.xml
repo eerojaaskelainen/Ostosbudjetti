@@ -46,4 +46,5 @@
     <string name="title_activity_add_item">Lisää tuote</string>
     <string name="title_activity_edit_shoppinglist">Muokkaa koria</string>
     <string name="title_activity_shops">Kaupat</string>
+    <string name="alert_basket_row_delete_failed">Rivin poisto ei onnistunut.\n\nAvaa kori uudestaan ja ja yritä poistoa uudelleen.</string>
 </resources>

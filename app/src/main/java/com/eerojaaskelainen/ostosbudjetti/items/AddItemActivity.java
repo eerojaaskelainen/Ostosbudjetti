@@ -76,13 +76,15 @@ public class AddItemActivity extends ActionBarActivity implements ProductItemFra
             // Kiville meni vanhan haku tai vanhaa ei ollut. Tehdään uusi
             ostosrivi = new Ostosrivi(ostoskori.getId());
             // Tehdään tyhjä Tuote-fragmentti:
-            tuoteFragment = ProductItemFragment.newInstance(null);
+
+            tuoteFragment = ProductItemFragment.newInstance(null,getIntent().getBooleanExtra(ProductItemFragment.LUETAAN_VIIVAKOODI_ALUKSI,false));
             saveBtn.setText(R.string.add);
         }
 
         //tuotePlaceholder.addView(tuoteFragment);
         getSupportFragmentManager().beginTransaction().add(R.id.additem_productfragment_placeholder,tuoteFragment).commit();
         setResult(RESULT_CANCELED); // Defaultti resultti on canceled. Muutetaan sitte tarvittaessa.
+
     }
 
     @Override
@@ -162,7 +164,8 @@ public class AddItemActivity extends ActionBarActivity implements ProductItemFra
      * Hakee parametrina annetun rivin tiedot ja asettelee ne kenttiin
      */
     private void asetaVanhatArvot() {
-        tuoteFragment = ProductItemFragment.newInstance(ostosrivi.getTuoteEAN());
+        tuoteFragment = ProductItemFragment.newInstance(ostosrivi.getTuoteEAN(),
+                getIntent().getBooleanExtra(ProductItemFragment.LUETAAN_VIIVAKOODI_ALUKSI,false));
         aHintaLbl.setText(Double.toString(ostosrivi.getaHinta()));
         lkmLbl.setText(Double.toString(ostosrivi.getLkm()));
         paivitaTotal();

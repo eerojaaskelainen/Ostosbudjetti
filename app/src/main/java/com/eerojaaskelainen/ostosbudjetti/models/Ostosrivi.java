@@ -118,7 +118,7 @@ public static ContentValues muunnaOstosriviValueiksi(Ostosrivi o)
     public static final String A_HINTA = "a_hinta";
     public static final String LKM = "lkm";
     public static final String RIVISUMMA = "summa";
-    public static final String RIVISUMMA_GENERATOR = A_HINTA + "*" + LKM + " AS summa";
+    public static final String RIVISUMMA_GENERATOR = A_HINTA + "*" + LKM + " AS "+RIVISUMMA;
 
     // Sarakkeiden nimet taulunimen kera Joineille:
     public static final String FULL_ID = TABLE_NAME + "." + _ID;

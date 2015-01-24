@@ -62,6 +62,12 @@
         android:layout_weight="1"
         android:id="@+id/shoppinglistedit_list"
         android:background="@drawable/erotinborderi"></FrameLayout>
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/shoppinglistedit_total"
+        android:gravity="center_horizontal"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large" />
 
 
 </LinearLayout>
