@@ -47,4 +47,8 @@
     <string name="title_activity_edit_shoppinglist">Muokkaa koria</string>
     <string name="title_activity_shops">Kaupat</string>
     <string name="alert_basket_row_delete_failed">Rivin poisto ei onnistunut.\n\nAvaa kori uudestaan ja ja yritä poistoa uudelleen.</string>
+    <string name="address">Address:</string>
+    <string name="edit_shop_title">Muokkaa kauppaa</string>
+    <string name="alert_modifications_unsaved_title">Muuttuneita tietoja ei ole tallennettu</string>
+    <string name="alert_store_to_database_failed">Tallennus ei onnistunut!</string>
 </resources>

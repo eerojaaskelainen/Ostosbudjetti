@@ -49,5 +49,8 @@
     <string name="alert_invalid_field_message">Check amount and unit price</string>
     <string name="alert_invalid_product">Product information is not ok.</string>
     <string name="alert_basket_row_delete_failed">Rivin poisto ei onnistunut.\n\nAvaa kori uudestaan ja ja yritä poistoa uudelleen.</string>
+    <string name="address">Address:</string>
+    <string name="edit_shop_title">Muokkaa kauppaa</string>
+    <string name="alert_modifications_unsaved_title">Muuttuneita tietoja ei ole tallennettu</string>
 
 </resources>

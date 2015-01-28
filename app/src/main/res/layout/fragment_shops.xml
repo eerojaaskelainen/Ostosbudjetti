@@ -14,11 +14,22 @@
             android:id="@+id/shopsfragment_store_txt" />
 
         <Button
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/shopsfragment_store_list"
             android:background="@android:drawable/btn_dropdown"
             android:text="@string/shops_fragment_dropdown_initial_label"
-            android:gravity="center_vertical|left" />
+            android:gravity="center_vertical|left"
+            android:layout_weight="3" />
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_action_new"
+            android:background="@null"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/shops_dialog_add_new_shop_button_label"
+            android:adjustViewBounds="false"
+            android:cropToPadding="false"
+            android:id="@+id/shopsfragment_add_new_btn" />
 
 </LinearLayout>

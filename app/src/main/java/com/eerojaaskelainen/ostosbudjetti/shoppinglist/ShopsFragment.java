@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.SimpleCursorAdapter;
 
 import com.eerojaaskelainen.ostosbudjetti.R;
@@ -32,7 +33,7 @@ import com.eerojaaskelainen.ostosbudjetti.shops.ShopsActivity;
 public class ShopsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
 
-
+    private static final int UUSI_KAUPPA_RESULT = 11;
     // Kaupat sisältävää listaa varten pari muuttujaa:
     protected Button kaupat;
 
@@ -126,6 +127,14 @@ public class ShopsFragment extends Fragment implements LoaderManager.LoaderCallb
             }
         });
 
+        // Napataan Uuden kaupan luontinappi:
+        ((ImageButton)localView.findViewById(R.id.shopsfragment_add_new_btn)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), ShopsActivity.class);
+                getActivity().startActivityForResult(i, EditShoppinglistActivity.KAUPPA_ACTIVITYREULT);
+            }
+        });
         // Ja käynnistetään loader, että saadaan sitä sisältöä tuohon spinneriin/adapteriin/kursoreihin:
         getLoaderManager().initLoader(1,null,this);
 
@@ -241,5 +250,4 @@ public class ShopsFragment extends Fragment implements LoaderManager.LoaderCallb
             kaupatAdapter.swapCursor(null);
         }
     }
-
 }

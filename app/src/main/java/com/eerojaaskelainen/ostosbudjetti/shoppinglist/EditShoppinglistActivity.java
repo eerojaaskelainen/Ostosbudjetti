@@ -264,7 +264,7 @@ public class EditShoppinglistActivity extends ActionBarActivity implements
 
     /**
      * Avaa normaalin lisäysikkunan, jossa tuotteen tiedot lisätään käsin.
-     * @param b
+     * @param viivakoodihaku Valinta, aktivoidaanko heti viivakoodiskanneri
      */
     private void lisaaTuote(boolean viivakoodihaku) {
         Intent i = new Intent(this, AddItemActivity.class);

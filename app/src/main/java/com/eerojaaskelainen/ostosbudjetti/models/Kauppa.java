@@ -87,6 +87,12 @@ public class Kauppa implements Parcelable, BaseColumns {
         }
     }
 
+    public Kauppa() {
+        this.nimi = null;
+        this.osoite = null;
+        this.sijainti = null;
+    }
+
     public Kauppa(Parcel in) {
         nimi = in.readString();
         osoite = in.readString();
@@ -114,5 +120,10 @@ public class Kauppa implements Parcelable, BaseColumns {
         this.nimi = nimi;
         this.osoite = "";
         this.sijainti = null;
+    }
+
+    public boolean onUusi() {
+        if (this.id == null) return true;
+        return this.id <1;
     }
 }
