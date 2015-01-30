@@ -1,10 +1,15 @@
 package com.eerojaaskelainen.ostosbudjetti.shops;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,7 +21,10 @@ import android.widget.TextView;
 import com.eerojaaskelainen.ostosbudjetti.R;
 import com.eerojaaskelainen.ostosbudjetti.models.Kauppa;
 
-public class ShopsActivity extends ActionBarActivity {
+import java.util.Calendar;
+
+public class ShopsActivity extends ActionBarActivity implements
+        LocationListener {
 
     public static final String KAUPPA_ARGUMENT = "Kauppa";
     private Kauppa muokattavaKauppa;
@@ -28,6 +36,11 @@ public class ShopsActivity extends ActionBarActivity {
     protected EditText kaupanNimi;
     protected EditText kaupanOsoite;
     protected Button tallennaBtn;
+
+
+    // Sijainnin pollaukseen:
+    LocationManager locationManager;
+    ProgressDialog odotusAnim;
 
     public ShopsActivity() {
         tallennetaanSijainti = false;
@@ -155,7 +168,7 @@ public class ShopsActivity extends ActionBarActivity {
      */
     protected void poistutaan()
     {
-        if (tuoteMuuttunut()){
+        if (tuoteMuuttunut()&! muokattavaKauppa.onUusi() ){
             // Tuote on muuttunut! Kysytään haluaako tallentaa vai poistutaanko vain.
             new AlertDialog.Builder(this)
                     .setTitle(R.string.alert_modifications_unsaved_title)
@@ -163,13 +176,13 @@ public class ShopsActivity extends ActionBarActivity {
                     .setPositiveButton(R.string.yes,new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            tallennaMuutokset();
+                            finish();
                         }
                     })
                     .setNegativeButton(android.R.string.no,new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            finish();
+                            dialog.cancel();
                         }
                     }).show();
             return;
@@ -269,4 +282,126 @@ public class ShopsActivity extends ActionBarActivity {
         }
         return false;
     }
+
+    // Lokaation hanskaukseen:
+    public void lueLokaatio(View v) {
+        odotusAnim = ProgressDialog.show(this,getString(R.string.progress_location_poll_title),getString(R.string.progress_location_poll_body),true);
+
+        runOnUiThread(new Runnable(){
+            public void run() {
+                try {
+                    PollaaLokaatio();
+                } catch (Exception e) {
+                    odotusAnim.dismiss();
+                    PaivitaLokaatio();
+                }
+            }
+        });
+    }
+    private void PollaaLokaatio(){
+
+       if (locationManager == null) {
+           locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+       }
+           uusiSijainti = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+           if(uusiSijainti != null && uusiSijainti.getTime() > Calendar.getInstance().getTimeInMillis() - 2 * 60 * 1000) {
+              odotusAnim.dismiss();
+              PaivitaLokaatio();
+               //  otherwise wait for the update below
+           }
+           else {
+               locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+           }
+
+    }
+
+    private void PaivitaLokaatio() {
+        String lokaatio;
+        if (uusiSijainti == null)
+            lokaatio = "";
+        else
+            lokaatio = " "+ uusiSijainti.getLatitude() + "N, "+ uusiSijainti.getLongitude() + "E";
+
+        ((TextView)findViewById(R.id.store_location_info)).setText(getString(R.string.store_location_label) + lokaatio );
+    }
+
+    /**
+     * Called when the location has changed.
+     * <p/>
+     * <p> There are no restrictions on the use of the supplied Location object.
+     *
+     * @param location The new location, as a Location object.
+     */
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location != null) {
+            Log.v("Location Changed", location.getLatitude() + " and " + location.getLongitude());
+            locationManager.removeUpdates(this);
+            odotusAnim.dismiss();
+            PaivitaLokaatio();
+        }
+    }
+
+    /**
+     * Dispatch onPause() to fragments.
+     */
+    @Override
+    protected void onPause() {
+        if (locationManager!=null){
+            locationManager.removeUpdates(this);
+            locationManager = null;
+        }
+        super.onPause();
+    }
+
+    /**
+     * Called when the provider status changes. This method is called when
+     * a provider is unable to fetch a location or if the provider has recently
+     * become available after a period of unavailability.
+     *
+     * @param provider the name of the location provider associated with this
+     *                 update.
+     * @param status   {@link LocationProvider#OUT_OF_SERVICE} if the
+     *                 provider is out of service, and this is not expected to change in the
+     *                 near future; {@link LocationProvider#TEMPORARILY_UNAVAILABLE} if
+     *                 the provider is temporarily unavailable but is expected to be available
+     *                 shortly; and {@link LocationProvider#AVAILABLE} if the
+     *                 provider is currently available.
+     * @param extras   an optional Bundle which will contain provider specific
+     *                 status variables.
+     *                 <p/>
+     *                 <p> A number of common key/value pairs for the extras Bundle are listed
+     *                 below. Providers that use any of the keys on this list must
+     *                 provide the corresponding value as described below.
+     *                 <p/>
+     *                 <ul>
+     *                 <li> satellites - the number of satellites used to derive the fix
+     */
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    /**
+     * Called when the provider is enabled by the user.
+     *
+     * @param provider the name of the location provider associated with this
+     *                 update.
+     */
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    /**
+     * Called when the provider is disabled by the user. If requestLocationUpdates
+     * is called on an already disabled provider, this method is called
+     * immediately.
+     *
+     * @param provider the name of the location provider associated with this
+     *                 update.
+     */
+    @Override
+    public void onProviderDisabled(String provider) {    }
 }

@@ -51,4 +51,8 @@
     <string name="edit_shop_title">Muokkaa kauppaa</string>
     <string name="alert_modifications_unsaved_title">Muuttuneita tietoja ei ole tallennettu</string>
     <string name="alert_store_to_database_failed">Tallennus ei onnistunut!</string>
+    <string name="poll_location">Hae sijainti</string>
+    <string name="store_location_label">Location:</string>
+    <string name="progress_location_poll_title">Etsitään sijaintia</string>
+    <string name="progress_location_poll_body">Odota...</string>
 </resources>

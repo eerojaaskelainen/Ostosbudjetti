@@ -63,6 +63,20 @@
 
     </LinearLayout>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Location: "
+        android:id="@+id/store_location_info" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/poll_location"
+        android:id="@+id/store_poll_location_btn"
+        android:onClick="lueLokaatio" />
+
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
