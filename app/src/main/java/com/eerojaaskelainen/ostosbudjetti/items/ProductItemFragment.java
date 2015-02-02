@@ -378,7 +378,10 @@ public class ProductItemFragment extends Fragment implements LoaderManager.Loade
         if (eanLbl.getText().toString().isEmpty())
             return false;   //TODO: Kysy miksi EAN on tyhjä!
 
-
+        if (eanLbl.getText().toString().contains(" ")) {
+            eanLbl.requestFocus();
+            return false;
+        }
 
         return true;
     }

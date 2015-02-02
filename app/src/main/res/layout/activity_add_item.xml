@@ -62,7 +62,7 @@
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:ems="4"
             android:id="@+id/additem_amount_input"
             android:text="1"

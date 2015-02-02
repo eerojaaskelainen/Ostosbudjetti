@@ -80,20 +80,20 @@ public class TuoteHelper {
 
         return (c.getCount()>0);
     }
-    public static boolean onkoTuotetta(SQLiteDatabase writableDatabase, String EANkoodi, String tuotenimi) {
+    public static boolean onkoTuotetta(SQLiteDatabase writableDatabase, String EANkoodi) {
         Cursor c = haeTuoteCursor(writableDatabase,
                 new String[]{Tuote._ID},
                 null,
                 null,
                 null,
-                EANkoodi,
-                tuotenimi);
+                null,
+                EANkoodi);
 
         return (c.getCount()>0);
     }
 
     public static long lisaaTuote(SQLiteDatabase writableDatabase,String tuotenimi,String valmistaja, String EANkoodi) {
-        if (onkoTuotetta(writableDatabase,EANkoodi,null)) {
+        if (onkoTuotetta(writableDatabase,EANkoodi)) {
             // Tuote löytyi samalla EAN-koodilla. Ei onnistu!
             throw new IllegalArgumentException("Product with the same EAN-code ("+ EANkoodi + ") exists!");
         }
